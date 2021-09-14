@@ -55,7 +55,7 @@ public class VoiceConnection extends Connection {
     private boolean rejected = false;
     private HashMap<String, String> handle;
     private Context context;
-    private static final String TAG = "RNCallKeep";
+    private static final String TAG = "CapCallKeep";
 
     VoiceConnection(Context context, HashMap<String, String> handle) {
         super();

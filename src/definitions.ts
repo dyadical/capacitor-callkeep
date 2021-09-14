@@ -1,20 +1,37 @@
-export type Events =
-  | 'didReceiveStartCallAction'
-  | 'answerCall'
+import type { PluginListenerHandle } from '@capacitor/core';
+
+type PLH = Promise<PluginListenerHandle> & PluginListenerHandle;
+type L<T> = (t: T) => void;
+
+type HandleType = 'generic' | 'number' | 'email';
+
+type UUID = { callUUID: string };
+
+type Events =
   | 'endCall'
-  | 'didActivateAudioSession'
-  | 'didDeactivateAudioSession'
-  | 'didDisplayIncomingCall'
-  | 'didToggleHoldCallAction'
-  | 'didPerformDTMFAction'
-  | 'didResetProvider'
+  | 'answerCall'
+  | 'toggleHold'
+  | 'setMutedCall'
+  | 'DTMF'
+  | 'startCall'
+  | 'activateAudioSession'
   | 'checkReachability'
-  | 'didPerformSetMutedCallAction'
-  | 'didLoadWithEvents'
   | 'showIncomingCallUi'
   | 'silenceIncomingCall';
 
-type HandleType = 'generic' | 'number' | 'email';
+type CallInfo = { callUUID: string; handle: string; name: string };
+interface Listeners {
+  addEventListener(type: 'endCall', l: L<UUID>): PLH;
+  addEventListener(type: 'answerCall', l: L<UUID>): PLH;
+  addEventListener(type: 'toggleHold', l: L<UUID & { hold: boolean }>): PLH;
+  addEventListener(type: 'setMutedCall', l: L<UUID & { muted: boolean }>): PLH;
+  addEventListener(type: 'DTMF', l: L<UUID & { digits: string }>): PLH;
+  addEventListener(type: 'startCall', l: L<CallInfo>): PLH;
+  addEventListener(type: 'activateAudioSession', l: L<void>): PLH;
+  addEventListener(type: 'checkReachability', l: L<void>): PLH;
+  addEventListener(type: 'showIncomingCallUi', l: L<CallInfo>): PLH;
+  addEventListener(type: 'silenceIncomingCall', l: L<CallInfo>): PLH;
+}
 
 export type AudioRoute = {
   name: string;
@@ -65,12 +82,12 @@ export const CONSTANTS = {
   },
 };
 
-export interface CapCallKeepPlugin {
+// TODO: update return type signatures
+// (everything returns a promise of an object)
+export interface CapCallKeepPlugin extends Listeners {
   echo(options: { value: string }): Promise<{ value: string }>;
 
   getInitialEvents(): Promise<Obj[]>;
-
-  addEventListener(type: Events, handler: (args: any) => void): void;
 
   removeEventListener(type: Events): void;
 

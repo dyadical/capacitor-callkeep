@@ -74,7 +74,7 @@ public class VoiceConnectionService extends ConnectionService {
     private static ConnectionRequest currentConnectionRequest;
     private static PhoneAccountHandle phoneAccountHandle;
     private static JSObject _settings;
-    private static String TAG = "RNCallKeep";
+    private static String TAG = "CapCallKeep";
     public static Map<String, VoiceConnection> currentConnections = new HashMap<>();
     public static Boolean hasOutgoingCall = false;
     public static VoiceConnectionService currentConnectionService = null;

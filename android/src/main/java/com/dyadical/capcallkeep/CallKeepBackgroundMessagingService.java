@@ -31,6 +31,6 @@ public class CallKeepBackgroundMessagingService extends HeadlessJsTaskService {
     protected @Nullable HeadlessJsTaskConfig getTaskConfig(Intent intent) {
         Bundle extras = intent.getExtras();
 
-        return new HeadlessJsTaskConfig("RNCallKeepBackgroundMessage", Arguments.fromBundle(extras), 60000, false);
+        return new HeadlessJsTaskConfig("CallKeepBackgroundMessage", Arguments.fromBundle(extras), 60000, false);
     }
 }

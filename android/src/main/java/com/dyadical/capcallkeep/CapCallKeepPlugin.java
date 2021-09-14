@@ -76,9 +76,9 @@ public class CapCallKeepPlugin extends Plugin {
     public static final int REQUEST_REGISTER_CALL_PROVIDER = 394859;
 
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
-    private static final String REACT_NATIVE_MODULE_NAME = "RNCallKeep";
+    private static final String REACT_NATIVE_MODULE_NAME = "CapCallKeep";
 
-    private static final String TAG = "RNCallKeep";
+    private static final String TAG = "CapCallKeep";
     private static TelecomManager telecomManager;
     private static TelephonyManager telephonyManager;
     public static PhoneAccountHandle handle;
@@ -151,6 +151,7 @@ public class CapCallKeepPlugin extends Plugin {
         }
 
         VoiceConnectionService.setSettings(this._settings);
+        call.resolve();
     }
 
     @PluginMethod
@@ -199,6 +200,7 @@ public class CapCallKeepPlugin extends Plugin {
         extras.putString(EXTRA_CALL_UUID, uuid);
 
         telecomManager.addNewIncomingCall(handle, extras);
+        call.resolve();
     }
 
     @PluginMethod
@@ -217,6 +219,7 @@ public class CapCallKeepPlugin extends Plugin {
         }
 
         conn.onAnswer();
+        call.resolve();
     }
 
     @PluginMethod
@@ -278,6 +281,7 @@ public class CapCallKeepPlugin extends Plugin {
         conn.onDisconnect();
 
         Log.d(TAG, "[VoiceConnection] endCall executed, uuid: " + uuid);
+        call.resolve();
     }
 
     @PluginMethod
@@ -392,6 +396,7 @@ public class CapCallKeepPlugin extends Plugin {
         }
 
         conn.onReject();
+        call.resolve();
     }
 
     @PluginMethod
@@ -594,6 +599,7 @@ public class CapCallKeepPlugin extends Plugin {
 
         conn.setConnectionCapabilities(conn.getConnectionCapabilities() | Connection.CAPABILITY_HOLD);
         conn.setActive();
+        call.resolve();
     }
 
     @PluginMethod
@@ -777,54 +783,54 @@ public class CapCallKeepPlugin extends Plugin {
             switch (intent.getAction()) {
                 case ACTION_END_CALL:
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("RNCallKeepPerformEndCallAction", args);
+                    notifyListeners("endCall", args);
                     break;
                 case ACTION_ANSWER_CALL:
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("RNCallKeepPerformAnswerCallAction", args);
+                    notifyListeners("answerCall", args);
                     break;
                 case ACTION_HOLD_CALL:
                     args.put("hold", true);
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("RNCallKeepDidToggleHoldAction", args);
+                    notifyListeners("toggleHold", args);
                     break;
                 case ACTION_UNHOLD_CALL:
                     args.put("hold", false);
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("RNCallKeepDidToggleHoldAction", args);
+                    notifyListeners("toggleHold", args);
                     break;
                 case ACTION_MUTE_CALL:
                     args.put("muted", true);
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("RNCallKeepDidPerformSetMutedCallAction", args);
+                    notifyListeners("setMutedCall", args);
                     break;
                 case ACTION_UNMUTE_CALL:
                     args.put("muted", false);
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("RNCallKeepDidPerformSetMutedCallAction", args);
+                    notifyListeners("setMutedCall", args);
                     break;
                 case ACTION_DTMF_TONE:
                     args.put("digits", attributeMap.get("DTMF"));
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("RNCallKeepDidPerformDTMFAction", args);
+                    notifyListeners("DTMF", args);
                     break;
                 case ACTION_ONGOING_CALL:
                     args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
                     args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    notifyListeners("RNCallKeepDidReceiveStartCallAction", args);
+                    notifyListeners("startCall", args);
                     break;
                 case ACTION_AUDIO_SESSION:
-                    notifyListeners("RNCallKeepDidActivateAudioSession", null);
+                    notifyListeners("activateAudioSession", null);
                     break;
                 case ACTION_CHECK_REACHABILITY:
-                    notifyListeners("RNCallKeepCheckReachability", null);
+                    notifyListeners("checkReachability", null);
                     break;
                 case ACTION_SHOW_INCOMING_CALL_UI:
                     args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
                     args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    notifyListeners("RNCallKeepShowIncomingCallUi", args);
+                    notifyListeners("showIncomingCallUi", args);
                     break;
                 case ACTION_WAKE_APP:
                     Intent headlessIntent = new Intent(getContext(), CallKeepBackgroundMessagingService.class);
@@ -851,7 +857,7 @@ public class CapCallKeepPlugin extends Plugin {
                     args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
                     args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    notifyListeners("RNCallKeepOnSilenceIncomingCall", args);
+                    notifyListeners("silenceIncomingCall", args);
                     break;
             }
         }
