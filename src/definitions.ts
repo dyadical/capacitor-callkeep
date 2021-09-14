@@ -12,7 +12,7 @@ type Events =
   | 'answerCall'
   | 'toggleHold'
   | 'setMutedCall'
-  | 'DTMF'
+  | 'DTMFAction'
   | 'startCall'
   | 'activateAudioSession'
   | 'checkReachability'
@@ -25,7 +25,7 @@ interface Listeners {
   addEventListener(type: 'answerCall', l: L<UUID>): PLH;
   addEventListener(type: 'toggleHold', l: L<UUID & { hold: boolean }>): PLH;
   addEventListener(type: 'setMutedCall', l: L<UUID & { muted: boolean }>): PLH;
-  addEventListener(type: 'DTMF', l: L<UUID & { digits: string }>): PLH;
+  addEventListener(type: 'DTMFAction', l: L<UUID & { digits: string }>): PLH;
   addEventListener(type: 'startCall', l: L<CallInfo>): PLH;
   addEventListener(type: 'activateAudioSession', l: L<void>): PLH;
   addEventListener(type: 'checkReachability', l: L<void>): PLH;
@@ -93,7 +93,7 @@ export interface CapCallKeepPlugin extends Listeners {
 
   setup(options: IOptions): Promise<boolean>;
 
-  hasDefaultPhoneAccount(): boolean;
+  hasDefaultPhoneAccount(): Promise<{ value: boolean }>;
 
   answerIncomingCall(uuid: string): void;
 

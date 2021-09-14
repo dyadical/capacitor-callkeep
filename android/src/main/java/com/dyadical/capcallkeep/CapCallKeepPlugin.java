@@ -812,7 +812,7 @@ public class CapCallKeepPlugin extends Plugin {
                 case ACTION_DTMF_TONE:
                     args.put("digits", attributeMap.get("DTMF"));
                     args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("DTMF", args);
+                    notifyListeners("DTMFAction", args);
                     break;
                 case ACTION_ONGOING_CALL:
                     args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
