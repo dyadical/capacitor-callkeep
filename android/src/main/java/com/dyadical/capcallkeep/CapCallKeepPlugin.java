@@ -44,11 +44,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.getcapacitor.Bridge;
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
+import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +59,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@CapacitorPlugin(name = "CapCallKeep")
+@CapacitorPlugin(
+    name = "CapCallKeep",
+    permissions = {
+        @Permission(alias = "readPhoneNumbers", strings = { Manifest.permission.READ_PHONE_NUMBERS }),
+        //                @Permission( // SDK_INT < 30
+        //                        alias="readPhoneState",
+        //                        strings={Manifest.permission.READ_PHONE_STATE}
+        //                ),
+        @Permission(alias = "callPhone", strings = { Manifest.permission.CALL_PHONE }),
+        @Permission(alias = "recordAudio", strings = { Manifest.permission.RECORD_AUDIO })
+    }
+)
 public class CapCallKeepPlugin extends Plugin {
 
     private CapCallKeep implementation = new CapCallKeep();
@@ -66,11 +80,6 @@ public class CapCallKeepPlugin extends Plugin {
 
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
     private static final String REACT_NATIVE_MODULE_NAME = "RNCallKeep";
-    private static String[] permissions = {
-        Build.VERSION.SDK_INT < 30 ? Manifest.permission.READ_PHONE_STATE : Manifest.permission.READ_PHONE_NUMBERS,
-        Manifest.permission.CALL_PHONE,
-        Manifest.permission.RECORD_AUDIO
-    };
 
     private static final String TAG = "RNCallKeep";
     private static TelecomManager telecomManager;
@@ -287,113 +296,30 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PermissionCallback
-    public void checkPhoneAccountPermission() {
+    public void checkPhoneAccountPermission(PluginCall call) {
         // ReadableArray optionalPermissions, Promise promise
-        // String[]
-        Activity currentActivity = this.getCurrentActivity();
 
         if (!isConnectionServiceAvailable()) {
-            String error = "ConnectionService not available for this version of Android.";
-            Log.w(TAG, "[VoiceConnection] checkPhoneAccountPermission error " + error);
-            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, error);
+            call.reject("ConnectionService not available for this version of Android.");
             return;
         }
-        if (currentActivity == null) {
-            String error = "Activity doesn't exist";
-            Log.w(TAG, "[VoiceConnection] checkPhoneAccountPermission error " + error);
-            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, error);
+        if (getActivity() == null) {
+            call.reject("Activity doesn't exist");
             return;
         }
-        String[] optionalPermsArr = new String[optionalPermissions.size()];
-        for (int i = 0; i < optionalPermissions.size(); i++) {
-            optionalPermsArr[i] = optionalPermissions.getString(i);
-        }
-
-        final String[] allPermissions = Arrays.copyOf(permissions, permissions.length + optionalPermsArr.length);
-        System.arraycopy(optionalPermsArr, 0, allPermissions, permissions.length, optionalPermsArr.length);
-
-        hasPhoneAccountPromise = promise;
-
-        if (!this.hasPermissions()) {
-            WritableArray allPermissionaw = Arguments.createArray();
-            for (String allPermission : allPermissions) {
-                allPermissionaw.pushString(allPermission);
-            }
-
-            getReactApplicationContext()
-                .getNativeModule(PermissionsModule.class)
-                .requestMultiplePermissions(
-                    allPermissionaw,
-                    new Promise() {
-                        @Override
-                        public void resolve(@Nullable Object value) {
-                            WritableMap grantedPermission = (WritableMap) value;
-                            int[] grantedResult = new int[allPermissions.length];
-                            for (int i = 0; i < allPermissions.length; ++i) {
-                                String perm = allPermissions[i];
-                                grantedResult[i] =
-                                    grantedPermission.getString(perm).equals("granted")
-                                        ? PackageManager.PERMISSION_GRANTED
-                                        : PackageManager.PERMISSION_DENIED;
-                            }
-                            RNCallKeepModule.onRequestPermissionsResult(REQUEST_READ_PHONE_STATE, allPermissions, grantedResult);
-                        }
-
-                        @Override
-                        public void reject(String code, String message) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(String code, Throwable throwable) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(String code, String message, Throwable throwable) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(Throwable throwable) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(Throwable throwable, WritableMap userInfo) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(String code, @NonNull WritableMap userInfo) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(String code, Throwable throwable, WritableMap userInfo) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(String code, String message, @NonNull WritableMap userInfo) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(String code, String message, Throwable throwable, WritableMap userInfo) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-
-                        @Override
-                        public void reject(String message) {
-                            hasPhoneAccountPromise.resolve(false);
-                        }
-                    }
-                );
+        if (getPermissionState("readPhoneNumbers") != PermissionState.GRANTED) {
+            call.reject("Permission for readPhoneNumbers not granted");
             return;
         }
-
-        promise.resolve(!hasPhoneAccount());
+        if (getPermissionState("callPhone") != PermissionState.GRANTED) {
+            call.reject("Permission for callPhone not granted");
+            return;
+        }
+        if (getPermissionState("recordAudio") != PermissionState.GRANTED) {
+            call.reject("Permission for recordAudio not granted");
+            return;
+        }
+        call.resolve();
     }
 
     @PluginMethod
