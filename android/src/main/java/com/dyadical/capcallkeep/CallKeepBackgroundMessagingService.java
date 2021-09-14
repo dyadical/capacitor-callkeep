@@ -17,19 +17,14 @@
 
 package com.dyadical.capcallkeep;
 
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALLER_NAME;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_NUMBER;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_UUID;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 import javax.annotation.Nullable;
 
+// TODO:
 public class CallKeepBackgroundMessagingService extends HeadlessJsTaskService {
 
     @Override

@@ -17,10 +17,13 @@
 
 package com.dyadical.capcallkeep;
 
+import android.os.Build;
 import android.telecom.Conference;
 import android.telecom.Connection;
 import android.telecom.PhoneAccountHandle;
+import androidx.annotation.RequiresApi;
 
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class VoiceConference extends Conference {
 
     VoiceConference(PhoneAccountHandle phoneAccountHandle) {

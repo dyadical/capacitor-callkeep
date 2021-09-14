@@ -50,9 +50,9 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.util.Log;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import com.facebook.react.HeadlessJsTaskService;
 import com.getcapacitor.JSObject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,6 +128,7 @@ public class VoiceConnectionService extends ConnectionService {
         isInitialized = value;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public static void deinitConnection(String connectionId) {
         Log.d(TAG, "[VoiceConnectionService] deinitConnection:" + connectionId);
         VoiceConnectionService.hasOutgoingCall = false;
@@ -253,7 +254,7 @@ public class VoiceConnectionService extends ConnectionService {
             .setPriority(NotificationManager.IMPORTANCE_MIN)
             .setCategory(Notification.CATEGORY_SERVICE);
 
-        if (foregroundSettings.hasKey("notificationIcon")) {
+        if (foregroundSettings.has("notificationIcon")) {
             Context context = this.getApplicationContext();
             Resources res = context.getResources();
             String smallIcon = foregroundSettings.getString("notificationIcon");
@@ -266,13 +267,14 @@ public class VoiceConnectionService extends ConnectionService {
         startForeground(FOREGROUND_SERVICE_TYPE_MICROPHONE, notification);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void stopForegroundService() {
         Log.d(TAG, "[VoiceConnectionService] stopForegroundService");
         if (_settings == null || !_settings.has("foregroundService")) {
             Log.d(TAG, "[VoiceConnectionService] Discarding stop foreground service, no service configured");
             return;
         }
-        stopForeground(FOREGROUND_SERVICE_TYPE_MICROPHONE);
+        stopForeground(FOREGROUND_SERVICE_TYPE_MICROPHONE); // TODO
     }
 
     private void wakeUpApplication(String uuid, String number, String displayName) {
@@ -289,6 +291,7 @@ public class VoiceConnectionService extends ConnectionService {
         ComponentName name = this.getApplicationContext().startService(headlessIntent);
         if (name != null) {
             Log.d(TAG, "[VoiceConnectionService] wakeUpApplication, acquiring lock for application:" + name);
+            // TODO
             HeadlessJsTaskService.acquireWakeLockNow(this.getApplicationContext());
         }
     }

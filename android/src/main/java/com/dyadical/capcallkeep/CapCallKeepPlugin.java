@@ -40,11 +40,8 @@ import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.WindowManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.getcapacitor.Bridge;
 import com.getcapacitor.JSArray;
@@ -57,9 +54,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -76,7 +71,6 @@ import java.util.Map;
 public class CapCallKeepPlugin extends Plugin {
 
     private String[] permissions = new String[] { "readPhoneNumbers", "readPhoneState", "manageOwnCalls", "callPhone", "recordAudio" };
-    private CapCallKeep implementation = new CapCallKeep();
 
     public static final int REQUEST_READ_PHONE_STATE = 1337;
     public static final int REQUEST_REGISTER_CALL_PROVIDER = 394859;
@@ -99,7 +93,7 @@ public class CapCallKeepPlugin extends Plugin {
         String value = call.getString("value");
 
         JSObject ret = new JSObject();
-        ret.put("value", implementation.echo(value));
+        ret.put("value", "cool ".concat(value));
         call.resolve(ret);
     }
 

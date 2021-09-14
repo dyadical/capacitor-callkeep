@@ -46,8 +46,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.util.HashMap;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 @TargetApi(Build.VERSION_CODES.M)
 public class VoiceConnection extends Connection {
