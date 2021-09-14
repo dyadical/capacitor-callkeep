@@ -46,32 +46,7 @@ export type AudioRoute = {
   type: string;
 };
 
-interface IOptions {
-  ios: {
-    appName: string;
-    imageName?: string;
-    supportsVideo?: boolean;
-    maximumCallGroups?: string;
-    maximumCallsPerCallGroup?: string;
-    ringtoneSound?: string;
-    includesCallsInRecents?: boolean;
-  };
-  android: {
-    alertTitle: string;
-    alertDescription: string;
-    cancelButton: string;
-    okButton: string;
-    imageName?: string;
-    additionalPermissions: string[];
-    selfManaged?: boolean;
-    foregroundService?: {
-      channelId: string;
-      channelName: string;
-      notificationTitle: string;
-      notificationIcon?: string;
-    };
-  };
-}
+// interface IOptions { ios: { appName: string; imageName?: string; supportsVideo?: boolean; maximumCallGroups?: string; maximumCallsPerCallGroup?: string; ringtoneSound?: string; includesCallsInRecents?: boolean; }; android: { alertTitle: string; alertDescription: string; cancelButton: string; okButton: string; imageName?: string; additionalPermissions: string[]; selfManaged?: boolean; foregroundService?: { channelId: string; channelName: string; notificationTitle: string; notificationIcon?: string; }; }; }
 
 export type DidReceiveStartCallActionPayload = { handle: string };
 export type AnswerCallPayload = { callUUID: string };
@@ -90,6 +65,8 @@ export const CONSTANTS = {
   },
 };
 
+type PV = Promise<void>;
+type PB = Promise<{ value: boolean }>;
 // TODO: update return type signatures
 // (everything returns a promise of an object)
 export interface CapCallKeepPlugin extends Listeners {
@@ -100,121 +77,128 @@ export interface CapCallKeepPlugin extends Listeners {
 
   removeEventListener(type: Events): void;
 
-  setup(options: IOptions): Promise<boolean>;
+  setup(options: {
+    selfManaged?: boolean;
+    imageName?: string;
+    foregroundService?: {
+      channelId: string;
+      channelName: string;
+      notificationTitle: string;
+      notificationIcon: string;
+    };
+  }): PV;
 
-  hasDefaultPhoneAccount(): Promise<{ value: boolean }>;
+  hasDefaultPhoneAccount(): PB;
 
-  answerIncomingCall(uuid: string): void;
+  answerIncomingCall(o: { uuid: string }): PV;
 
-  registerPhoneAccount(): void;
+  registerPhoneAccount(): PV;
 
-  registerAndroidEvents(): void;
+  registerAndroidEvents(): PV;
 
-  displayIncomingCall(
-    uuid: string,
-    handle: string,
-    localizedCallerName?: string,
-    handleType?: HandleType,
-    hasVideo?: boolean,
-    options?: Obj,
-  ): void;
+  displayIncomingCall(o: {
+    uuid: string;
+    handle: string;
+    localizedCallerName?: string;
+    handleType?: HandleType;
+    hasVideo?: boolean;
+    options?: Obj;
+  }): PV;
 
-  startCall(
-    uuid: string,
-    handle: string,
-    contactIdentifier?: string,
-    handleType?: HandleType,
-    hasVideo?: boolean,
-  ): void;
+  startCall(o: {
+    uuid: string;
+    handle: string;
+    contactIdentifier?: string;
+    handleType?: HandleType;
+    hasVideo?: boolean;
+  }): PV;
 
-  updateDisplay(
-    uuid: string,
-    displayName: string,
-    handle: string,
-    options?: Obj,
-  ): void;
+  updateDisplay(o: {
+    uuid: string;
+    displayName: string;
+    handle: string;
+    options?: Obj;
+  }): PV;
 
-  checkPhoneAccountEnabled(): Promise<boolean>;
+  checkPhoneAccountEnabled(): PB;
 
-  isConnectionServiceAvailable(): Promise<boolean>;
+  isConnectionServiceAvailable(): PB;
 
   /**
    * @description reportConnectedOutgoingCallWithUUID method is available only on iOS.
    */
-  reportConnectedOutgoingCallWithUUID(uuid: string): void;
+  reportConnectedOutgoingCallWithUUID(args: { uuid: string }): PV;
 
   /**
    * @description reportConnectedOutgoingCallWithUUID method is available only on iOS.
    */
-  reportConnectingOutgoingCallWithUUID(uuid: string): void;
+  reportConnectingOutgoingCallWithUUID(o: { uuid: string }): PV;
 
-  reportEndCallWithUUID(uuid: string, reason: number): void;
+  reportEndCallWithUUID(o: { uuid: string; reason: number }): PV;
 
-  rejectCall(uuid: string): void;
+  rejectCall(o: { uuid: string }): PV;
 
-  endCall(uuid: string): void;
+  endCall(o: { uuid: string }): PV;
 
-  endAllCalls(): void;
+  endAllCalls(): PV;
 
-  setReachable(): void;
+  setReachable(): PV;
 
   /**
    * @description isCallActive method is available only on iOS.
    */
-  isCallActive(uuid: string): Promise<boolean>;
+  isCallActive(o: { uuid: string }): PB;
 
   getCalls(): Promise<Obj>;
 
-  getAudioRoutes(): Promise<void>;
+  getAudioRoutes(): PV;
 
-  setAudioRoute: (uuid: string, inputName: string) => Promise<void>;
+  setAudioRoute(o: { uuid: string; inputName: string }): PV;
 
   /**
    * @description supportConnectionService method is available only on Android.
    */
-  supportConnectionService(): boolean;
+  supportConnectionService(): PB;
 
   /**
    * @description hasPhoneAccount method is available only on Android.
    */
-  hasPhoneAccount(): Promise<boolean>;
+  hasPhoneAccount(): PB;
 
-  hasOutgoingCall(): Promise<boolean>;
+  hasOutgoingCall(): PB;
 
   /**
    * @description setMutedCall method is available only on iOS.
    */
-  setMutedCall(uuid: string, muted: boolean): void;
+  setMutedCall(o: { uuid: string; muted: boolean }): PV;
 
   /**
    * @description toggleAudioRouteSpeaker method is available only on Android.
-   * @param uuid
-   * @param routeSpeaker
    */
-  toggleAudioRouteSpeaker(uuid: string, routeSpeaker: boolean): void;
-  setOnHold(uuid: string, held: boolean): void;
+  toggleAudioRouteSpeaker(o: { uuid: string; routeSpeaker: boolean }): PV;
+  setOnHold(o: { uuid: string; held: boolean }): PV;
 
   /**
    * @descriptions sendDTMF is used to send DTMF tones to the PBX.
    */
-  sendDTMF(uuid: string, key: string): void;
+  sendDTMF(o: { uuid: string; key: string }): PV;
 
-  checkIfBusy(): Promise<boolean>;
+  checkIfBusy(): PB;
 
-  checkSpeaker(): Promise<boolean>;
+  checkSpeaker(): PB;
 
   /**
    * @description setAvailable method is available only on Android.
    */
-  setAvailable(active: boolean): void;
+  setAvailable(o: { active: boolean }): PV;
 
-  setForegroundServiceSettings(settings: Obj): void;
+  setForegroundServiceSettings(o: { settings: Obj }): PV;
 
-  canMakeMultipleCalls(allow: boolean): void;
+  canMakeMultipleCalls(o: { allow: boolean }): PV;
 
-  setCurrentCallActive(callUUID: string): void;
+  setCurrentCallActive(o: { callUUID: string }): PV;
 
-  backToForeground(): void;
+  backToForeground(): PV;
 }
 
 type Obj = Record<string, string>;

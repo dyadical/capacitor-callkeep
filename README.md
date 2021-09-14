@@ -38,6 +38,7 @@ npx cap sync
 * [`isCallActive(...)`](#iscallactive)
 * [`getCalls()`](#getcalls)
 * [`getAudioRoutes()`](#getaudioroutes)
+* [`setAudioRoute(...)`](#setaudioroute)
 * [`supportConnectionService()`](#supportconnectionservice)
 * [`hasPhoneAccount()`](#hasphoneaccount)
 * [`hasOutgoingCall()`](#hasoutgoingcall)
@@ -123,12 +124,12 @@ removeEventListener(type: Events) => void
 ### setup(...)
 
 ```typescript
-setup(options: IOptions) => any
+setup(options: { selfManaged?: boolean; imageName?: string; foregroundService?: { channelId: string; channelName: string; notificationTitle: string; notificationIcon: string; }; }) => any
 ```
 
-| Param         | Type                                          |
-| ------------- | --------------------------------------------- |
-| **`options`** | <code><a href="#ioptions">IOptions</a></code> |
+| Param         | Type                                                                                                                                                                              |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ selfManaged?: boolean; imageName?: string; foregroundService?: { channelId: string; channelName: string; notificationTitle: string; notificationIcon: string; }; }</code> |
 
 **Returns:** <code>any</code>
 
@@ -149,12 +150,14 @@ hasDefaultPhoneAccount() => any
 ### answerIncomingCall(...)
 
 ```typescript
-answerIncomingCall(uuid: string) => void
+answerIncomingCall(o: { uuid: string; }) => any
 ```
 
-| Param      | Type                |
-| ---------- | ------------------- |
-| **`uuid`** | <code>string</code> |
+| Param   | Type                           |
+| ------- | ------------------------------ |
+| **`o`** | <code>{ uuid: string; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -162,8 +165,10 @@ answerIncomingCall(uuid: string) => void
 ### registerPhoneAccount()
 
 ```typescript
-registerPhoneAccount() => void
+registerPhoneAccount() => any
 ```
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -171,8 +176,10 @@ registerPhoneAccount() => void
 ### registerAndroidEvents()
 
 ```typescript
-registerAndroidEvents() => void
+registerAndroidEvents() => any
 ```
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -180,17 +187,14 @@ registerAndroidEvents() => void
 ### displayIncomingCall(...)
 
 ```typescript
-displayIncomingCall(uuid: string, handle: string, localizedCallerName?: string | undefined, handleType?: "number" | "generic" | "email" | undefined, hasVideo?: boolean | undefined, options?: any) => void
+displayIncomingCall(o: { uuid: string; handle: string; localizedCallerName?: string; handleType?: HandleType; hasVideo?: boolean; options?: Obj; }) => any
 ```
 
-| Param                     | Type                                          |
-| ------------------------- | --------------------------------------------- |
-| **`uuid`**                | <code>string</code>                           |
-| **`handle`**              | <code>string</code>                           |
-| **`localizedCallerName`** | <code>string</code>                           |
-| **`handleType`**          | <code>"number" \| "generic" \| "email"</code> |
-| **`hasVideo`**            | <code>boolean</code>                          |
-| **`options`**             | <code>any</code>                              |
+| Param   | Type                                                                                                                                                           |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`o`** | <code>{ uuid: string; handle: string; localizedCallerName?: string; handleType?: "number" \| "generic" \| "email"; hasVideo?: boolean; options?: any; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -198,16 +202,14 @@ displayIncomingCall(uuid: string, handle: string, localizedCallerName?: string |
 ### startCall(...)
 
 ```typescript
-startCall(uuid: string, handle: string, contactIdentifier?: string | undefined, handleType?: "number" | "generic" | "email" | undefined, hasVideo?: boolean | undefined) => void
+startCall(o: { uuid: string; handle: string; contactIdentifier?: string; handleType?: HandleType; hasVideo?: boolean; }) => any
 ```
 
-| Param                   | Type                                          |
-| ----------------------- | --------------------------------------------- |
-| **`uuid`**              | <code>string</code>                           |
-| **`handle`**            | <code>string</code>                           |
-| **`contactIdentifier`** | <code>string</code>                           |
-| **`handleType`**        | <code>"number" \| "generic" \| "email"</code> |
-| **`hasVideo`**          | <code>boolean</code>                          |
+| Param   | Type                                                                                                                                          |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`o`** | <code>{ uuid: string; handle: string; contactIdentifier?: string; handleType?: "number" \| "generic" \| "email"; hasVideo?: boolean; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -215,15 +217,14 @@ startCall(uuid: string, handle: string, contactIdentifier?: string | undefined, 
 ### updateDisplay(...)
 
 ```typescript
-updateDisplay(uuid: string, displayName: string, handle: string, options?: any) => void
+updateDisplay(o: { uuid: string; displayName: string; handle: string; options?: Obj; }) => any
 ```
 
-| Param             | Type                |
-| ----------------- | ------------------- |
-| **`uuid`**        | <code>string</code> |
-| **`displayName`** | <code>string</code> |
-| **`handle`**      | <code>string</code> |
-| **`options`**     | <code>any</code>    |
+| Param   | Type                                                                               |
+| ------- | ---------------------------------------------------------------------------------- |
+| **`o`** | <code>{ uuid: string; displayName: string; handle: string; options?: any; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -253,12 +254,14 @@ isConnectionServiceAvailable() => any
 ### reportConnectedOutgoingCallWithUUID(...)
 
 ```typescript
-reportConnectedOutgoingCallWithUUID(uuid: string) => void
+reportConnectedOutgoingCallWithUUID(args: { uuid: string; }) => any
 ```
 
-| Param      | Type                |
-| ---------- | ------------------- |
-| **`uuid`** | <code>string</code> |
+| Param      | Type                           |
+| ---------- | ------------------------------ |
+| **`args`** | <code>{ uuid: string; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -266,12 +269,14 @@ reportConnectedOutgoingCallWithUUID(uuid: string) => void
 ### reportConnectingOutgoingCallWithUUID(...)
 
 ```typescript
-reportConnectingOutgoingCallWithUUID(uuid: string) => void
+reportConnectingOutgoingCallWithUUID(o: { uuid: string; }) => any
 ```
 
-| Param      | Type                |
-| ---------- | ------------------- |
-| **`uuid`** | <code>string</code> |
+| Param   | Type                           |
+| ------- | ------------------------------ |
+| **`o`** | <code>{ uuid: string; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -279,13 +284,14 @@ reportConnectingOutgoingCallWithUUID(uuid: string) => void
 ### reportEndCallWithUUID(...)
 
 ```typescript
-reportEndCallWithUUID(uuid: string, reason: number) => void
+reportEndCallWithUUID(o: { uuid: string; reason: number; }) => any
 ```
 
-| Param        | Type                |
-| ------------ | ------------------- |
-| **`uuid`**   | <code>string</code> |
-| **`reason`** | <code>number</code> |
+| Param   | Type                                           |
+| ------- | ---------------------------------------------- |
+| **`o`** | <code>{ uuid: string; reason: number; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -293,12 +299,14 @@ reportEndCallWithUUID(uuid: string, reason: number) => void
 ### rejectCall(...)
 
 ```typescript
-rejectCall(uuid: string) => void
+rejectCall(o: { uuid: string; }) => any
 ```
 
-| Param      | Type                |
-| ---------- | ------------------- |
-| **`uuid`** | <code>string</code> |
+| Param   | Type                           |
+| ------- | ------------------------------ |
+| **`o`** | <code>{ uuid: string; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -306,12 +314,14 @@ rejectCall(uuid: string) => void
 ### endCall(...)
 
 ```typescript
-endCall(uuid: string) => void
+endCall(o: { uuid: string; }) => any
 ```
 
-| Param      | Type                |
-| ---------- | ------------------- |
-| **`uuid`** | <code>string</code> |
+| Param   | Type                           |
+| ------- | ------------------------------ |
+| **`o`** | <code>{ uuid: string; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -319,8 +329,10 @@ endCall(uuid: string) => void
 ### endAllCalls()
 
 ```typescript
-endAllCalls() => void
+endAllCalls() => any
 ```
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -328,8 +340,10 @@ endAllCalls() => void
 ### setReachable()
 
 ```typescript
-setReachable() => void
+setReachable() => any
 ```
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -337,12 +351,12 @@ setReachable() => void
 ### isCallActive(...)
 
 ```typescript
-isCallActive(uuid: string) => any
+isCallActive(o: { uuid: string; }) => any
 ```
 
-| Param      | Type                |
-| ---------- | ------------------- |
-| **`uuid`** | <code>string</code> |
+| Param   | Type                           |
+| ------- | ------------------------------ |
+| **`o`** | <code>{ uuid: string; }</code> |
 
 **Returns:** <code>any</code>
 
@@ -371,13 +385,28 @@ getAudioRoutes() => any
 --------------------
 
 
+### setAudioRoute(...)
+
+```typescript
+setAudioRoute(o: { uuid: string; inputName: string; }) => any
+```
+
+| Param   | Type                                              |
+| ------- | ------------------------------------------------- |
+| **`o`** | <code>{ uuid: string; inputName: string; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
 ### supportConnectionService()
 
 ```typescript
-supportConnectionService() => boolean
+supportConnectionService() => any
 ```
 
-**Returns:** <code>boolean</code>
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -407,13 +436,14 @@ hasOutgoingCall() => any
 ### setMutedCall(...)
 
 ```typescript
-setMutedCall(uuid: string, muted: boolean) => void
+setMutedCall(o: { uuid: string; muted: boolean; }) => any
 ```
 
-| Param       | Type                 |
-| ----------- | -------------------- |
-| **`uuid`**  | <code>string</code>  |
-| **`muted`** | <code>boolean</code> |
+| Param   | Type                                           |
+| ------- | ---------------------------------------------- |
+| **`o`** | <code>{ uuid: string; muted: boolean; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -421,13 +451,14 @@ setMutedCall(uuid: string, muted: boolean) => void
 ### toggleAudioRouteSpeaker(...)
 
 ```typescript
-toggleAudioRouteSpeaker(uuid: string, routeSpeaker: boolean) => void
+toggleAudioRouteSpeaker(o: { uuid: string; routeSpeaker: boolean; }) => any
 ```
 
-| Param              | Type                 |
-| ------------------ | -------------------- |
-| **`uuid`**         | <code>string</code>  |
-| **`routeSpeaker`** | <code>boolean</code> |
+| Param   | Type                                                  |
+| ------- | ----------------------------------------------------- |
+| **`o`** | <code>{ uuid: string; routeSpeaker: boolean; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -435,13 +466,14 @@ toggleAudioRouteSpeaker(uuid: string, routeSpeaker: boolean) => void
 ### setOnHold(...)
 
 ```typescript
-setOnHold(uuid: string, held: boolean) => void
+setOnHold(o: { uuid: string; held: boolean; }) => any
 ```
 
-| Param      | Type                 |
-| ---------- | -------------------- |
-| **`uuid`** | <code>string</code>  |
-| **`held`** | <code>boolean</code> |
+| Param   | Type                                          |
+| ------- | --------------------------------------------- |
+| **`o`** | <code>{ uuid: string; held: boolean; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -449,13 +481,14 @@ setOnHold(uuid: string, held: boolean) => void
 ### sendDTMF(...)
 
 ```typescript
-sendDTMF(uuid: string, key: string) => void
+sendDTMF(o: { uuid: string; key: string; }) => any
 ```
 
-| Param      | Type                |
-| ---------- | ------------------- |
-| **`uuid`** | <code>string</code> |
-| **`key`**  | <code>string</code> |
+| Param   | Type                                        |
+| ------- | ------------------------------------------- |
+| **`o`** | <code>{ uuid: string; key: string; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -485,12 +518,14 @@ checkSpeaker() => any
 ### setAvailable(...)
 
 ```typescript
-setAvailable(active: boolean) => void
+setAvailable(o: { active: boolean; }) => any
 ```
 
-| Param        | Type                 |
-| ------------ | -------------------- |
-| **`active`** | <code>boolean</code> |
+| Param   | Type                              |
+| ------- | --------------------------------- |
+| **`o`** | <code>{ active: boolean; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -498,12 +533,14 @@ setAvailable(active: boolean) => void
 ### setForegroundServiceSettings(...)
 
 ```typescript
-setForegroundServiceSettings(settings: any) => void
+setForegroundServiceSettings(o: { settings: Obj; }) => any
 ```
 
-| Param          | Type             |
-| -------------- | ---------------- |
-| **`settings`** | <code>any</code> |
+| Param   | Type                            |
+| ------- | ------------------------------- |
+| **`o`** | <code>{ settings: any; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -511,12 +548,14 @@ setForegroundServiceSettings(settings: any) => void
 ### canMakeMultipleCalls(...)
 
 ```typescript
-canMakeMultipleCalls(allow: boolean) => void
+canMakeMultipleCalls(o: { allow: boolean; }) => any
 ```
 
-| Param       | Type                 |
-| ----------- | -------------------- |
-| **`allow`** | <code>boolean</code> |
+| Param   | Type                             |
+| ------- | -------------------------------- |
+| **`o`** | <code>{ allow: boolean; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -524,12 +563,14 @@ canMakeMultipleCalls(allow: boolean) => void
 ### setCurrentCallActive(...)
 
 ```typescript
-setCurrentCallActive(callUUID: string) => void
+setCurrentCallActive(o: { callUUID: string; }) => any
 ```
 
-| Param          | Type                |
-| -------------- | ------------------- |
-| **`callUUID`** | <code>string</code> |
+| Param   | Type                               |
+| ------- | ---------------------------------- |
+| **`o`** | <code>{ callUUID: string; }</code> |
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -537,8 +578,10 @@ setCurrentCallActive(callUUID: string) => void
 ### backToForeground()
 
 ```typescript
-backToForeground() => void
+backToForeground() => any
 ```
+
+**Returns:** <code>any</code>
 
 --------------------
 
@@ -555,13 +598,5 @@ backToForeground() => void
 | **`manageOwnCalls`**   | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
 | **`callPhone`**        | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
 | **`recordAudio`**      | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
-
-
-#### IOptions
-
-| Prop          | Type                                                                                                                                                                                                                                                                                                |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`ios`**     | <code>{ appName: string; imageName?: string; supportsVideo?: boolean; maximumCallGroups?: string; maximumCallsPerCallGroup?: string; ringtoneSound?: string; includesCallsInRecents?: boolean; }</code>                                                                                             |
-| **`android`** | <code>{ alertTitle: string; alertDescription: string; cancelButton: string; okButton: string; imageName?: string; additionalPermissions: {}; selfManaged?: boolean; foregroundService?: { channelId: string; channelName: string; notificationTitle: string; notificationIcon?: string; }; }</code> |
 
 </docgen-api>
