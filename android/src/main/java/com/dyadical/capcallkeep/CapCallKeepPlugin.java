@@ -42,7 +42,10 @@ import android.util.Log;
 import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.getcapacitor.Bridge;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -59,20 +62,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RequiresApi(api = Build.VERSION_CODES.O)
 @CapacitorPlugin(
     name = "CapCallKeep",
     permissions = {
         @Permission(alias = "readPhoneNumbers", strings = { Manifest.permission.READ_PHONE_NUMBERS }),
-        //                @Permission( // SDK_INT < 30
-        //                        alias="readPhoneState",
-        //                        strings={Manifest.permission.READ_PHONE_STATE}
-        //                ),
+        @Permission(alias = "readPhoneState", strings = { Manifest.permission.READ_PHONE_STATE }),
         @Permission(alias = "callPhone", strings = { Manifest.permission.CALL_PHONE }),
-        @Permission(alias = "recordAudio", strings = { Manifest.permission.RECORD_AUDIO })
+        @Permission(alias = "recordAudio", strings = { Manifest.permission.RECORD_AUDIO }),
+        @Permission(alias = "manageOwnCalls", strings = { Manifest.permission.MANAGE_OWN_CALLS })
     }
 )
 public class CapCallKeepPlugin extends Plugin {
 
+    private String[] permissions = new String[] { "readPhoneNumbers", "readPhoneState", "manageOwnCalls", "callPhone", "recordAudio" };
     private CapCallKeep implementation = new CapCallKeep();
 
     public static final int REQUEST_READ_PHONE_STATE = 1337;
@@ -141,10 +144,11 @@ public class CapCallKeepPlugin extends Plugin {
         }
 
         // If we're running in self managed mode we need fewer permissions.
-        if (isSelfManaged()) {
-            Log.d(TAG, "[VoiceConnection] setup, adding RECORD_AUDIO in permissions in self managed");
-            permissions = new String[] { Manifest.permission.RECORD_AUDIO };
-        }
+        // TODO
+        //        if (isSelfManaged()) {
+        //            Log.d(TAG, "[VoiceConnection] setup, adding RECORD_AUDIO in permissions in self managed");
+        //            permissions = new String[] { Manifest.permission.RECORD_AUDIO };
+        //        }
 
         if (isConnectionServiceAvailable()) {
             this.registerPhoneAccount();
@@ -255,8 +259,12 @@ public class CapCallKeepPlugin extends Plugin {
         extras.putParcelable(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, callExtras);
 
         Log.d(TAG, "[VoiceConnection] startCall, uuid: " + uuid);
-
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            call.reject("no CALL_PHONE permissions");
+            return;
+        }
         telecomManager.placeCall(uri, extras);
+        call.resolve();
     }
 
     @PluginMethod
@@ -307,37 +315,39 @@ public class CapCallKeepPlugin extends Plugin {
             call.reject("Activity doesn't exist");
             return;
         }
-        if (getPermissionState("readPhoneNumbers") != PermissionState.GRANTED) {
-            call.reject("Permission for readPhoneNumbers not granted");
-            return;
-        }
-        if (getPermissionState("callPhone") != PermissionState.GRANTED) {
-            call.reject("Permission for callPhone not granted");
-            return;
-        }
-        if (getPermissionState("recordAudio") != PermissionState.GRANTED) {
-            call.reject("Permission for recordAudio not granted");
-            return;
+        for (String permission : permissions) {
+            if (getPermissionState(permission) != PermissionState.GRANTED) {
+                call.reject(String.format("permission not granted for %s", permission));
+                return;
+            }
         }
         call.resolve();
     }
 
     @PluginMethod
-    public void checkDefaultPhoneAccount(Promise promise) {
+    public void checkDefaultPhoneAccount(PluginCall call) {
+        JSObject ret = new JSObject();
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
-            promise.resolve(true);
+            ret.put("value", true);
+            call.resolve(ret);
             return;
         }
 
         if (!Build.MANUFACTURER.equalsIgnoreCase("Samsung")) {
-            promise.resolve(true);
+            ret.put("value", true);
+            call.resolve(ret);
             return;
         }
 
         boolean hasSim = telephonyManager.getSimState() != TelephonyManager.SIM_STATE_ABSENT;
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            call.reject("no READ_PHONE_STATE permission");
+            return;
+        }
         boolean hasDefaultAccount = telecomManager.getDefaultOutgoingPhoneAccount("tel") != null;
 
-        promise.resolve(!hasSim || hasDefaultAccount);
+        ret.put("value", !hasSim || hasDefaultAccount);
+        call.resolve(ret);
     }
 
     @PluginMethod
@@ -431,7 +441,9 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void setAudioRoute(String uuid, String audioRoute, Promise promise) {
+    public void setAudioRoute(PluginCall call) {
+        String uuid = call.getString("uuid");
+        String audioRoute = call.getString("audioRoute");
         try {
             VoiceConnection conn = (VoiceConnection) VoiceConnectionService.getConnection(uuid);
             if (conn == null) {
@@ -440,50 +452,52 @@ public class CapCallKeepPlugin extends Plugin {
             if (audioRoute.equals("Bluetooth")) {
                 Log.d(TAG, "[VoiceConnection] setting audio route: Bluetooth");
                 conn.setAudioRoute(CallAudioState.ROUTE_BLUETOOTH);
-                promise.resolve(true);
+                call.resolve();
                 return;
             }
             if (audioRoute.equals("Headset")) {
                 Log.d(TAG, "[VoiceConnection] setting audio route: Headset");
                 conn.setAudioRoute(CallAudioState.ROUTE_WIRED_HEADSET);
-                promise.resolve(true);
+                call.resolve();
                 return;
             }
             if (audioRoute.equals("Speaker")) {
                 Log.d(TAG, "[VoiceConnection] setting audio route: Speaker");
                 conn.setAudioRoute(CallAudioState.ROUTE_SPEAKER);
-                promise.resolve(true);
+                call.resolve();
                 return;
             }
             Log.d(TAG, "[VoiceConnection] setting audio route: Wired/Earpiece");
             conn.setAudioRoute(CallAudioState.ROUTE_WIRED_OR_EARPIECE);
-            promise.resolve(true);
+            call.resolve();
         } catch (Exception e) {
-            promise.reject("SetAudioRoute", e.getMessage());
+            call.reject("SetAudioRoute", e.getMessage());
         }
     }
 
     @PluginMethod
-    public void getAudioRoutes(Promise promise) {
+    public void getAudioRoutes(PluginCall call) {
         try {
             Context context = this.getAppContext();
             AudioManager audioManager = (AudioManager) context.getSystemService(context.AUDIO_SERVICE);
-            WritableArray devices = Arguments.createArray();
+            JSArray devices = new JSArray();
             ArrayList<String> typeChecker = new ArrayList<>();
             AudioDeviceInfo[] audioDeviceInfo = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS + AudioManager.GET_DEVICES_OUTPUTS);
             for (AudioDeviceInfo device : audioDeviceInfo) {
                 String type = getAudioRouteType(device.getType());
                 if (type != null && !typeChecker.contains(type)) {
-                    WritableMap deviceInfo = Arguments.createMap();
-                    deviceInfo.putString("name", type);
-                    deviceInfo.putString("type", type);
+                    JSObject deviceInfo = new JSObject();
+                    deviceInfo.put("name", type);
+                    deviceInfo.put("type", type);
                     typeChecker.add(type);
-                    devices.pushMap(deviceInfo);
+                    devices.put(deviceInfo);
                 }
             }
-            promise.resolve(devices);
+            JSObject ret = new JSObject();
+            ret.put("devices", devices);
+            call.resolve(ret);
         } catch (Exception e) {
-            promise.reject("GetAudioRoutes Error", e.getMessage());
+            call.reject("GetAudioRoutes Error", e.getMessage());
         }
     }
 
@@ -530,22 +544,28 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void hasPhoneAccount(Promise promise) {
+    public void hasPhoneAccount(PluginCall call) {
         if (telecomManager == null) {
             this.initializeTelecomManager();
         }
 
-        promise.resolve(hasPhoneAccount());
+        resolveWith(call, hasPhoneAccount());
     }
 
     @PluginMethod
-    public void hasOutgoingCall(Promise promise) {
-        promise.resolve(VoiceConnectionService.hasOutgoingCall);
+    public void hasOutgoingCall(PluginCall call) {
+        resolveWith(call, VoiceConnectionService.hasOutgoingCall);
     }
 
     @PluginMethod
-    public void hasPermissions(Promise promise) {
-        promise.resolve(this.hasPermissions());
+    public void hasPermissions(PluginCall call) {
+        resolveWith(call, this.hasPermissions());
+    }
+
+    private void resolveWith(PluginCall call, Object value) {
+        JSObject ret = new JSObject();
+        ret.put("value", value);
+        call.resolve(ret);
     }
 
     @PluginMethod
@@ -623,13 +643,13 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void isConnectionServiceAvailable(Promise promise) {
-        promise.resolve(isConnectionServiceAvailable());
+    public void isConnectionServiceAvailable(PluginCall call) {
+        resolveWith(call, isConnectionServiceAvailable());
     }
 
     @PluginMethod
-    public void checkPhoneAccountEnabled(Promise promise) {
-        promise.resolve(hasPhoneAccount());
+    public void checkPhoneAccountEnabled(PluginCall call) {
+        resolveWith(call, hasPhoneAccount());
     }
 
     @PluginMethod
@@ -637,7 +657,7 @@ public class CapCallKeepPlugin extends Plugin {
         Context context = getAppContext();
         String packageName = context.getApplicationContext().getPackageName();
         Intent focusIntent = context.getPackageManager().getLaunchIntentForPackage(packageName).cloneFilter();
-        Activity activity = getCurrentActivity();
+        Activity activity = getActivity();
         boolean isOpened = activity != null;
         Log.d(TAG, "[VoiceConnection] backToForeground, app isOpened ?" + (isOpened ? "true" : "false"));
 
@@ -645,14 +665,14 @@ public class CapCallKeepPlugin extends Plugin {
             focusIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             activity.startActivity(focusIntent);
         } else {
-            focusIntent.addFlags(
+            focusIntent.addFlags( // TODO
                 Intent.FLAG_ACTIVITY_NEW_TASK +
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED +
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD +
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
             );
 
-            getReactApplicationContext().startActivity(focusIntent);
+            getContext().startActivity(focusIntent);
         }
     }
 
@@ -696,14 +716,6 @@ public class CapCallKeepPlugin extends Plugin {
         telecomManager.registerPhoneAccount(account);
     }
 
-    private void sendEventToJS(String eventName, @Nullable WritableMap params) {
-        Log.v(
-            TAG,
-            "[VoiceConnection] sendEventToJS, eventName :" + eventName + ", args : " + (params != null ? params.toString() : "null")
-        );
-        this.reactContext.getJSModule(RCTDeviceEventEmitter.class).emit(eventName, params);
-    }
-
     private String getApplicationName(Context appContext) {
         ApplicationInfo applicationInfo = appContext.getApplicationInfo();
         int stringId = applicationInfo.labelRes;
@@ -712,21 +724,19 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     private Boolean hasPermissions() {
-        Activity currentActivity = this.getCurrentActivity();
+        Activity currentActivity = getActivity();
 
         if (currentActivity == null) {
             return false;
         }
 
-        boolean hasPermissions = true;
         for (String permission : permissions) {
-            int permissionCheck = ContextCompat.checkSelfPermission(currentActivity, permission);
-            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                hasPermissions = false;
+            if (getPermissionState(permission) != PermissionState.GRANTED) {
+                return false;
             }
         }
 
-        return hasPermissions;
+        return true;
     }
 
     private static boolean hasPhoneAccount() {
@@ -754,89 +764,76 @@ public class CapCallKeepPlugin extends Plugin {
             intentFilter.addAction(ACTION_SHOW_INCOMING_CALL_UI);
             intentFilter.addAction(ACTION_ON_SILENCE_INCOMING_CALL);
 
-            LocalBroadcastManager.getInstance(this.reactContext).registerReceiver(voiceBroadcastReceiver, intentFilter);
+            LocalBroadcastManager.getInstance(getContext()).registerReceiver(voiceBroadcastReceiver, intentFilter);
             isReceiverRegistered = true;
         }
     }
 
     private Context getAppContext() {
-        return this.reactContext.getApplicationContext();
-    }
-
-    public static void onRequestPermissionsResult(int requestCode, String[] grantedPermissions, int[] grantResults) {
-        int permissionsIndex = 0;
-        List<String> permsList = Arrays.asList(permissions);
-        for (int result : grantResults) {
-            if (permsList.contains(grantedPermissions[permissionsIndex]) && result != PackageManager.PERMISSION_GRANTED) {
-                hasPhoneAccountPromise.resolve(false);
-                return;
-            }
-            permissionsIndex++;
-        }
-        hasPhoneAccountPromise.resolve(true);
+        return getContext().getApplicationContext();
     }
 
     private class VoiceBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            WritableMap args = Arguments.createMap();
+            JSObject args = new JSObject();
             HashMap<String, String> attributeMap = (HashMap<String, String>) intent.getSerializableExtra("attributeMap");
 
             switch (intent.getAction()) {
                 case ACTION_END_CALL:
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    sendEventToJS("RNCallKeepPerformEndCallAction", args);
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    notifyListeners("RNCallKeepPerformEndCallAction", args);
                     break;
                 case ACTION_ANSWER_CALL:
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    sendEventToJS("RNCallKeepPerformAnswerCallAction", args);
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    notifyListeners("RNCallKeepPerformAnswerCallAction", args);
                     break;
                 case ACTION_HOLD_CALL:
-                    args.putBoolean("hold", true);
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    sendEventToJS("RNCallKeepDidToggleHoldAction", args);
+                    args.put("hold", true);
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    notifyListeners("RNCallKeepDidToggleHoldAction", args);
                     break;
                 case ACTION_UNHOLD_CALL:
-                    args.putBoolean("hold", false);
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    sendEventToJS("RNCallKeepDidToggleHoldAction", args);
+                    args.put("hold", false);
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    notifyListeners("RNCallKeepDidToggleHoldAction", args);
                     break;
                 case ACTION_MUTE_CALL:
-                    args.putBoolean("muted", true);
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    sendEventToJS("RNCallKeepDidPerformSetMutedCallAction", args);
+                    args.put("muted", true);
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    notifyListeners("RNCallKeepDidPerformSetMutedCallAction", args);
                     break;
                 case ACTION_UNMUTE_CALL:
-                    args.putBoolean("muted", false);
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    sendEventToJS("RNCallKeepDidPerformSetMutedCallAction", args);
+                    args.put("muted", false);
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    notifyListeners("RNCallKeepDidPerformSetMutedCallAction", args);
                     break;
                 case ACTION_DTMF_TONE:
-                    args.putString("digits", attributeMap.get("DTMF"));
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    sendEventToJS("RNCallKeepDidPerformDTMFAction", args);
+                    args.put("digits", attributeMap.get("DTMF"));
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    notifyListeners("RNCallKeepDidPerformDTMFAction", args);
                     break;
                 case ACTION_ONGOING_CALL:
-                    args.putString("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    args.putString("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    sendEventToJS("RNCallKeepDidReceiveStartCallAction", args);
+                    args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
+                    notifyListeners("RNCallKeepDidReceiveStartCallAction", args);
                     break;
                 case ACTION_AUDIO_SESSION:
-                    sendEventToJS("RNCallKeepDidActivateAudioSession", null);
+                    notifyListeners("RNCallKeepDidActivateAudioSession", null);
                     break;
                 case ACTION_CHECK_REACHABILITY:
-                    sendEventToJS("RNCallKeepCheckReachability", null);
+                    notifyListeners("RNCallKeepCheckReachability", null);
                     break;
                 case ACTION_SHOW_INCOMING_CALL_UI:
-                    args.putString("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    args.putString("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    sendEventToJS("RNCallKeepShowIncomingCallUi", args);
+                    args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
+                    notifyListeners("RNCallKeepShowIncomingCallUi", args);
                     break;
                 case ACTION_WAKE_APP:
-                    Intent headlessIntent = new Intent(reactContext, CallKeepBackgroundMessagingService.class);
+                    Intent headlessIntent = new Intent(getContext(), CallKeepBackgroundMessagingService.class);
                     headlessIntent.putExtra("callUUID", attributeMap.get(EXTRA_CALL_UUID));
                     headlessIntent.putExtra("name", attributeMap.get(EXTRA_CALLER_NAME));
                     headlessIntent.putExtra("handle", attributeMap.get(EXTRA_CALL_NUMBER));
@@ -850,16 +847,17 @@ public class CapCallKeepPlugin extends Plugin {
                         attributeMap.get(EXTRA_CALLER_NAME)
                     );
 
-                    ComponentName name = reactContext.startService(headlessIntent);
+                    ComponentName name = getContext().startService(headlessIntent);
                     if (name != null) {
-                        HeadlessJsTaskService.acquireWakeLockNow(reactContext);
+                        // TODO:
+                        HeadlessJsTaskService.acquireWakeLockNow(getContext());
                     }
                     break;
                 case ACTION_ON_SILENCE_INCOMING_CALL:
-                    args.putString("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    args.putString("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    args.putString("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    sendEventToJS("RNCallKeepOnSilenceIncomingCall", args);
+                    args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
+                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
+                    notifyListeners("RNCallKeepOnSilenceIncomingCall", args);
                     break;
             }
         }
