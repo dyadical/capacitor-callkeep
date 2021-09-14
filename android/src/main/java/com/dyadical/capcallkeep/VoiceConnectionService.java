@@ -279,21 +279,22 @@ public class VoiceConnectionService extends ConnectionService {
 
     private void wakeUpApplication(String uuid, String number, String displayName) {
         Log.d(TAG, "[VoiceConnectionService] wakeUpApplication, uuid:" + uuid + ", number :" + number + ", displayName:" + displayName);
-
-        // Avoid to call wake up the app again in wakeUpAfterReachabilityTimeout.
-        this.currentConnectionRequest = null;
-
-        Intent headlessIntent = new Intent(this.getApplicationContext(), CallKeepBackgroundMessagingService.class);
-        headlessIntent.putExtra("callUUID", uuid);
-        headlessIntent.putExtra("name", displayName);
-        headlessIntent.putExtra("handle", number);
-
-        ComponentName name = this.getApplicationContext().startService(headlessIntent);
-        if (name != null) {
-            Log.d(TAG, "[VoiceConnectionService] wakeUpApplication, acquiring lock for application:" + name);
-            // TODO
-            HeadlessJsTaskService.acquireWakeLockNow(this.getApplicationContext());
-        }
+        Log.w(TAG, "NOT IMPLEMENTED");
+        // TODO
+        //        // Avoid to call wake up the app again in wakeUpAfterReachabilityTimeout.
+        //        this.currentConnectionRequest = null;
+        //
+        //        Intent headlessIntent = new Intent(this.getApplicationContext(), CallKeepBackgroundMessagingService.class);
+        //        headlessIntent.putExtra("callUUID", uuid);
+        //        headlessIntent.putExtra("name", displayName);
+        //        headlessIntent.putExtra("handle", number);
+        //
+        //        ComponentName name = this.getApplicationContext().startService(headlessIntent);
+        //        if (name != null) {
+        //            Log.d(TAG, "[VoiceConnectionService] wakeUpApplication, acquiring lock for application:" + name);
+        //            // TODO
+        //            // HeadlessJsTaskService.acquireWakeLockNow(this.getApplicationContext());
+        //        }
     }
 
     private void wakeUpAfterReachabilityTimeout(ConnectionRequest request) {

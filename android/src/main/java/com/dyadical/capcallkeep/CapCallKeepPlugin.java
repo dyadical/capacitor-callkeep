@@ -145,9 +145,12 @@ public class CapCallKeepPlugin extends Plugin {
         //        }
 
         if (isConnectionServiceAvailable()) {
+            Log.i(TAG, "registering phone account");
             this.registerPhoneAccount();
             this.registerEvents();
             VoiceConnectionService.setAvailable(true);
+        } else {
+            Log.w(TAG, "connection service not available");
         }
 
         VoiceConnectionService.setSettings(this._settings);
@@ -833,25 +836,27 @@ public class CapCallKeepPlugin extends Plugin {
                     notifyListeners("showIncomingCallUi", args);
                     break;
                 case ACTION_WAKE_APP:
-                    Intent headlessIntent = new Intent(getContext(), CallKeepBackgroundMessagingService.class);
-                    headlessIntent.putExtra("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    headlessIntent.putExtra("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    headlessIntent.putExtra("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    Log.d(
-                        TAG,
-                        "[VoiceConnection] wakeUpApplication: " +
-                        attributeMap.get(EXTRA_CALL_UUID) +
-                        ", number : " +
-                        attributeMap.get(EXTRA_CALL_NUMBER) +
-                        ", displayName:" +
-                        attributeMap.get(EXTRA_CALLER_NAME)
-                    );
-
-                    ComponentName name = getContext().startService(headlessIntent);
-                    if (name != null) {
-                        // TODO:
-                        HeadlessJsTaskService.acquireWakeLockNow(getContext());
-                    }
+                    Log.w(TAG, "ACTION_WAKE_UP NOT IMPLEMENTED");
+                    // TODO
+                    //                    Intent headlessIntent = new Intent(getContext(), CallKeepBackgroundMessagingService.class);
+                    //                    headlessIntent.putExtra("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    //                    headlessIntent.putExtra("name", attributeMap.get(EXTRA_CALLER_NAME));
+                    //                    headlessIntent.putExtra("handle", attributeMap.get(EXTRA_CALL_NUMBER));
+                    //                    Log.d(
+                    //                        TAG,
+                    //                        "[VoiceConnection] wakeUpApplication: " +
+                    //                        attributeMap.get(EXTRA_CALL_UUID) +
+                    //                        ", number : " +
+                    //                        attributeMap.get(EXTRA_CALL_NUMBER) +
+                    //                        ", displayName:" +
+                    //                        attributeMap.get(EXTRA_CALLER_NAME)
+                    //                    );
+                    //
+                    //                    ComponentName name = getContext().startService(headlessIntent);
+                    //                    if (name != null) {
+                    //                        // TODO:
+                    //                        // HeadlessJsTaskService.acquireWakeLockNow(getContext());
+                    //                    }
                     break;
                 case ACTION_ON_SILENCE_INCOMING_CALL:
                     args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));

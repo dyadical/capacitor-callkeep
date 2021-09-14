@@ -15,7 +15,6 @@ npx cap sync
 
 * [`echo(...)`](#echo)
 * [`getInitialEvents()`](#getinitialevents)
-* [`addEventListener(...)`](#addeventlistener)
 * [`removeEventListener(...)`](#removeeventlistener)
 * [`setup(...)`](#setup)
 * [`hasDefaultPhoneAccount()`](#hasdefaultphoneaccount)
@@ -84,29 +83,15 @@ getInitialEvents() => any
 --------------------
 
 
-### addEventListener(...)
-
-```typescript
-addEventListener(type: Events, handler: (args: any) => void) => void
-```
-
-| Param         | Type                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`type`**    | <code>"didReceiveStartCallAction" \| "answerCall" \| "endCall" \| "didActivateAudioSession" \| "didDeactivateAudioSession" \| "didDisplayIncomingCall" \| "didToggleHoldCallAction" \| "didPerformDTMFAction" \| "didResetProvider" \| "checkReachability" \| "didPerformSetMutedCallAction" \| "didLoadWithEvents" \| "showIncomingCallUi" \| "silenceIncomingCall"</code> |
-| **`handler`** | <code>(args: any) =&gt; void</code>                                                                                                                                                                                                                                                                                                                                         |
-
---------------------
-
-
 ### removeEventListener(...)
 
 ```typescript
 removeEventListener(type: Events) => void
 ```
 
-| Param      | Type                                                                                                                                                                                                                                                                                                                                                                        |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`type`** | <code>"didReceiveStartCallAction" \| "answerCall" \| "endCall" \| "didActivateAudioSession" \| "didDeactivateAudioSession" \| "didDisplayIncomingCall" \| "didToggleHoldCallAction" \| "didPerformDTMFAction" \| "didResetProvider" \| "checkReachability" \| "didPerformSetMutedCallAction" \| "didLoadWithEvents" \| "showIncomingCallUi" \| "silenceIncomingCall"</code> |
+| Param      | Type                                                                                                                                                                                                      |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`type`** | <code>"endCall" \| "answerCall" \| "toggleHold" \| "setMutedCall" \| "DTMFAction" \| "startCall" \| "activateAudioSession" \| "checkReachability" \| "showIncomingCallUi" \| "silenceIncomingCall"</code> |
 
 --------------------
 
@@ -129,10 +114,10 @@ setup(options: IOptions) => any
 ### hasDefaultPhoneAccount()
 
 ```typescript
-hasDefaultPhoneAccount() => boolean
+hasDefaultPhoneAccount() => any
 ```
 
-**Returns:** <code>boolean</code>
+**Returns:** <code>any</code>
 
 --------------------
 
