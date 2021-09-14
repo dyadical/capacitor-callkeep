@@ -73,12 +73,13 @@ public class CapCallKeepPlugin extends Plugin {
     private static final String TAG = "RNCallKeep";
     private static TelecomManager telecomManager;
     private static TelephonyManager telephonyManager;
-    private static Promise hasPhoneAccountPromise;
-    private ReactApplicationContext reactContext;
+    //    private static Promise hasPhoneAccountPromise;
+    //    private ReactApplicationContext reactContext;
     public static PhoneAccountHandle handle;
     private boolean isReceiverRegistered = false;
-    private RNCallKeepModule.VoiceBroadcastReceiver voiceBroadcastReceiver;
-    private ReadableMap _settings;
+
+    //    private RNCallKeepModule.VoiceBroadcastReceiver voiceBroadcastReceiver;
+    private JSObject _settings;
 
     @PluginMethod
     public void echo(PluginCall call) {
@@ -89,32 +90,32 @@ public class CapCallKeepPlugin extends Plugin {
         call.resolve(ret);
     }
 
-    public RNCallKeepModule(ReactApplicationContext reactContext) {
-        super(reactContext);
-        Log.d(TAG, "[VoiceConnection] constructor");
-
-        this.reactContext = reactContext;
-    }
+    //    public RNCallKeepModule(ReactApplicationContext reactContext) {
+    //        super(reactContext);
+    //        Log.d(TAG, "[VoiceConnection] constructor");
+    //
+    //        this.reactContext = reactContext;
+    //    }
 
     private boolean isSelfManaged() {
         try {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && _settings.hasKey("selfManaged") && _settings.getBoolean("selfManaged");
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && _settings.has("selfManaged") && _settings.getBoolean("selfManaged");
         } catch (Exception e) {
             return false;
         }
     }
 
-    @Override
-    public String getName() {
-        return REACT_NATIVE_MODULE_NAME;
-    }
+    //    @Override
+    //    public String getName() {
+    //        return REACT_NATIVE_MODULE_NAME;
+    //    }
 
     @PluginMethod
     public void setup(PluginCall options) {
         Log.d(TAG, "[VoiceConnection] setup");
         VoiceConnectionService.setAvailable(false);
         VoiceConnectionService.setInitialized(true);
-        this._settings = options;
+        this._settings = options.getData();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (isSelfManaged()) {
@@ -280,7 +281,9 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void checkPhoneAccountPermission(ReadableArray optionalPermissions, Promise promise) {
+    public void checkPhoneAccountPermission() {
+        // ReadableArray optionalPermissions, Promise promise
+        // String[]
         Activity currentActivity = this.getCurrentActivity();
 
         if (!isConnectionServiceAvailable()) {
@@ -619,7 +622,7 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void setForegroundServiceSettings(ReadableMap settings) {
+    public void setForegroundServiceSettings(JSObject settings) {
         VoiceConnectionService.setSettings(settings);
     }
 
@@ -746,7 +749,7 @@ public class CapCallKeepPlugin extends Plugin {
             builder.setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER);
         }
 
-        if (_settings != null && _settings.hasKey("imageName")) {
+        if (_settings != null && _settings.has("imageName")) {
             int identifier = appContext
                 .getResources()
                 .getIdentifier(_settings.getString("imageName"), "drawable", appContext.getPackageName());

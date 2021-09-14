@@ -53,7 +53,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.facebook.react.HeadlessJsTaskService;
-import com.facebook.react.bridge.ReadableMap;
+import com.getcapacitor.JSObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -73,7 +73,7 @@ public class VoiceConnectionService extends ConnectionService {
     private static String notReachableCallUuid;
     private static ConnectionRequest currentConnectionRequest;
     private static PhoneAccountHandle phoneAccountHandle;
-    private static ReadableMap _settings;
+    private static JSObject _settings;
     private static String TAG = "RNCallKeep";
     public static Map<String, VoiceConnection> currentConnections = new HashMap<>();
     public static Boolean hasOutgoingCall = false;
@@ -106,7 +106,7 @@ public class VoiceConnectionService extends ConnectionService {
         isAvailable = value;
     }
 
-    public static void setSettings(ReadableMap settings) {
+    public static void setSettings(JSObject settings) {
         _settings = settings;
     }
 
@@ -233,11 +233,11 @@ public class VoiceConnectionService extends ConnectionService {
             return;
         }
         Log.d(TAG, "[VoiceConnectionService] startForegroundService");
-        if (_settings == null || !_settings.hasKey("foregroundService")) {
+        if (_settings == null || !_settings.has("foregroundService")) {
             Log.w(TAG, "[VoiceConnectionService] Not creating foregroundService because not configured");
             return;
         }
-        ReadableMap foregroundSettings = _settings.getMap("foregroundService");
+        JSObject foregroundSettings = _settings.getJSObject("foregroundService");
         String NOTIFICATION_CHANNEL_ID = foregroundSettings.getString("channelId");
         String channelName = foregroundSettings.getString("channelName");
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
@@ -268,7 +268,7 @@ public class VoiceConnectionService extends ConnectionService {
 
     private void stopForegroundService() {
         Log.d(TAG, "[VoiceConnectionService] stopForegroundService");
-        if (_settings == null || !_settings.hasKey("foregroundService")) {
+        if (_settings == null || !_settings.has("foregroundService")) {
             Log.d(TAG, "[VoiceConnectionService] Discarding stop foreground service, no service configured");
             return;
         }
