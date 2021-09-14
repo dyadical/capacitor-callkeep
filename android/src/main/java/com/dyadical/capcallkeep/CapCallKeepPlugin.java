@@ -43,6 +43,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import com.getcapacitor.Bridge;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -73,13 +74,12 @@ public class CapCallKeepPlugin extends Plugin {
     private static final String TAG = "RNCallKeep";
     private static TelecomManager telecomManager;
     private static TelephonyManager telephonyManager;
-    //    private static Promise hasPhoneAccountPromise;
-    //    private ReactApplicationContext reactContext;
     public static PhoneAccountHandle handle;
     private boolean isReceiverRegistered = false;
 
-    //    private RNCallKeepModule.VoiceBroadcastReceiver voiceBroadcastReceiver;
+    private VoiceBroadcastReceiver voiceBroadcastReceiver;
     private JSObject _settings;
+    public static Bridge staticBridge = null;
 
     @PluginMethod
     public void echo(PluginCall call) {
@@ -88,6 +88,11 @@ public class CapCallKeepPlugin extends Plugin {
         JSObject ret = new JSObject();
         ret.put("value", implementation.echo(value));
         call.resolve(ret);
+    }
+
+    public void load() {
+        staticBridge = this.bridge;
+        //        messagingService = new MessagingService();
     }
 
     //    public RNCallKeepModule(ReactApplicationContext reactContext) {
@@ -111,11 +116,11 @@ public class CapCallKeepPlugin extends Plugin {
     //    }
 
     @PluginMethod
-    public void setup(PluginCall options) {
+    public void setup(PluginCall call) {
         Log.d(TAG, "[VoiceConnection] setup");
         VoiceConnectionService.setAvailable(false);
         VoiceConnectionService.setInitialized(true);
-        this._settings = options.getData();
+        this._settings = call.getData();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (isSelfManaged()) {
@@ -137,7 +142,7 @@ public class CapCallKeepPlugin extends Plugin {
             VoiceConnectionService.setAvailable(true);
         }
 
-        VoiceConnectionService.setSettings(options);
+        VoiceConnectionService.setSettings(this._settings);
     }
 
     @PluginMethod
@@ -161,7 +166,7 @@ public class CapCallKeepPlugin extends Plugin {
 
         Log.d(TAG, "[VoiceConnection] registerEvents");
 
-        voiceBroadcastReceiver = new RNCallKeepModule.VoiceBroadcastReceiver();
+        voiceBroadcastReceiver = new VoiceBroadcastReceiver();
         registerReceiver();
         VoiceConnectionService.setPhoneAccountHandle(handle);
     }
