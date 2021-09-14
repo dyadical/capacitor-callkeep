@@ -12,47 +12,47 @@ export type Events =
   | 'didPerformSetMutedCallAction'
   | 'didLoadWithEvents'
   | 'showIncomingCallUi'
-  | 'silenceIncomingCall'
+  | 'silenceIncomingCall';
 
-type HandleType = 'generic' | 'number' | 'email'
+type HandleType = 'generic' | 'number' | 'email';
 
 export type AudioRoute = {
-  name: string
-  type: string
-}
+  name: string;
+  type: string;
+};
 
 interface IOptions {
   ios: {
-    appName: string
-    imageName?: string
-    supportsVideo?: boolean
-    maximumCallGroups?: string
-    maximumCallsPerCallGroup?: string
-    ringtoneSound?: string
-    includesCallsInRecents?: boolean
-  }
+    appName: string;
+    imageName?: string;
+    supportsVideo?: boolean;
+    maximumCallGroups?: string;
+    maximumCallsPerCallGroup?: string;
+    ringtoneSound?: string;
+    includesCallsInRecents?: boolean;
+  };
   android: {
-    alertTitle: string
-    alertDescription: string
-    cancelButton: string
-    okButton: string
-    imageName?: string
-    additionalPermissions: string[]
-    selfManaged?: boolean
+    alertTitle: string;
+    alertDescription: string;
+    cancelButton: string;
+    okButton: string;
+    imageName?: string;
+    additionalPermissions: string[];
+    selfManaged?: boolean;
     foregroundService?: {
-      channelId: string
-      channelName: string
-      notificationTitle: string
-      notificationIcon?: string
-    }
-  }
+      channelId: string;
+      channelName: string;
+      notificationTitle: string;
+      notificationIcon?: string;
+    };
+  };
 }
 
-export type DidReceiveStartCallActionPayload = { handle: string }
-export type AnswerCallPayload = { callUUID: string }
-export type EndCallPayload = AnswerCallPayload
-export type DidDisplayIncomingCallPayload = string | undefined
-export type DidPerformSetMutedCallActionPayload = boolean
+export type DidReceiveStartCallActionPayload = { handle: string };
+export type AnswerCallPayload = { callUUID: string };
+export type EndCallPayload = AnswerCallPayload;
+export type DidDisplayIncomingCallPayload = string | undefined;
+export type DidPerformSetMutedCallActionPayload = boolean;
 
 export const CONSTANTS = {
   END_CALL_REASONS: {
@@ -63,26 +63,26 @@ export const CONSTANTS = {
     DECLINED_ELSEWHERE: 5 | 2,
     MISSED: 2 | 6,
   },
-}
+};
 
 export interface CapCallKeepPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>
+  echo(options: { value: string }): Promise<{ value: string }>;
 
-  getInitialEvents(): Promise<Obj[]>
+  getInitialEvents(): Promise<Obj[]>;
 
-  addEventListener(type: Events, handler: (args: any) => void): void
+  addEventListener(type: Events, handler: (args: any) => void): void;
 
-  removeEventListener(type: Events): void
+  removeEventListener(type: Events): void;
 
-  setup(options: IOptions): Promise<boolean>
+  setup(options: IOptions): Promise<boolean>;
 
-  hasDefaultPhoneAccount(): boolean
+  hasDefaultPhoneAccount(): boolean;
 
-  answerIncomingCall(uuid: string): void
+  answerIncomingCall(uuid: string): void;
 
-  registerPhoneAccount(): void
+  registerPhoneAccount(): void;
 
-  registerAndroidEvents(): void
+  registerAndroidEvents(): void;
 
   displayIncomingCall(
     uuid: string,
@@ -91,7 +91,7 @@ export interface CapCallKeepPlugin {
     handleType?: HandleType,
     hasVideo?: boolean,
     options?: Obj,
-  ): void
+  ): void;
 
   startCall(
     uuid: string,
@@ -99,96 +99,96 @@ export interface CapCallKeepPlugin {
     contactIdentifier?: string,
     handleType?: HandleType,
     hasVideo?: boolean,
-  ): void
+  ): void;
 
   updateDisplay(
     uuid: string,
     displayName: string,
     handle: string,
     options?: Obj,
-  ): void
+  ): void;
 
-  checkPhoneAccountEnabled(): Promise<boolean>
+  checkPhoneAccountEnabled(): Promise<boolean>;
 
-  isConnectionServiceAvailable(): Promise<boolean>
-
-  /**
-   * @description reportConnectedOutgoingCallWithUUID method is available only on iOS.
-   */
-  reportConnectedOutgoingCallWithUUID(uuid: string): void
+  isConnectionServiceAvailable(): Promise<boolean>;
 
   /**
    * @description reportConnectedOutgoingCallWithUUID method is available only on iOS.
    */
-  reportConnectingOutgoingCallWithUUID(uuid: string): void
+  reportConnectedOutgoingCallWithUUID(uuid: string): void;
 
-  reportEndCallWithUUID(uuid: string, reason: number): void
+  /**
+   * @description reportConnectedOutgoingCallWithUUID method is available only on iOS.
+   */
+  reportConnectingOutgoingCallWithUUID(uuid: string): void;
 
-  rejectCall(uuid: string): void
+  reportEndCallWithUUID(uuid: string, reason: number): void;
 
-  endCall(uuid: string): void
+  rejectCall(uuid: string): void;
 
-  endAllCalls(): void
+  endCall(uuid: string): void;
 
-  setReachable(): void
+  endAllCalls(): void;
+
+  setReachable(): void;
 
   /**
    * @description isCallActive method is available only on iOS.
    */
-  isCallActive(uuid: string): Promise<boolean>
+  isCallActive(uuid: string): Promise<boolean>;
 
-  getCalls(): Promise<Obj>
+  getCalls(): Promise<Obj>;
 
-  getAudioRoutes(): Promise<void>
+  getAudioRoutes(): Promise<void>;
 
-  setAudioRoute: (uuid: string, inputName: string) => Promise<void>
+  setAudioRoute: (uuid: string, inputName: string) => Promise<void>;
 
   /**
    * @description supportConnectionService method is available only on Android.
    */
-  supportConnectionService(): boolean
+  supportConnectionService(): boolean;
 
   /**
    * @description hasPhoneAccount method is available only on Android.
    */
-  hasPhoneAccount(): Promise<boolean>
+  hasPhoneAccount(): Promise<boolean>;
 
-  hasOutgoingCall(): Promise<boolean>
+  hasOutgoingCall(): Promise<boolean>;
 
   /**
    * @description setMutedCall method is available only on iOS.
    */
-  setMutedCall(uuid: string, muted: boolean): void
+  setMutedCall(uuid: string, muted: boolean): void;
 
   /**
    * @description toggleAudioRouteSpeaker method is available only on Android.
    * @param uuid
    * @param routeSpeaker
    */
-  toggleAudioRouteSpeaker(uuid: string, routeSpeaker: boolean): void
-  setOnHold(uuid: string, held: boolean): void
+  toggleAudioRouteSpeaker(uuid: string, routeSpeaker: boolean): void;
+  setOnHold(uuid: string, held: boolean): void;
 
   /**
    * @descriptions sendDTMF is used to send DTMF tones to the PBX.
    */
-  sendDTMF(uuid: string, key: string): void
+  sendDTMF(uuid: string, key: string): void;
 
-  checkIfBusy(): Promise<boolean>
+  checkIfBusy(): Promise<boolean>;
 
-  checkSpeaker(): Promise<boolean>
+  checkSpeaker(): Promise<boolean>;
 
   /**
    * @description setAvailable method is available only on Android.
    */
-  setAvailable(active: boolean): void
+  setAvailable(active: boolean): void;
 
-  setForegroundServiceSettings(settings: Obj): void
+  setForegroundServiceSettings(settings: Obj): void;
 
-  canMakeMultipleCalls(allow: boolean): void
+  canMakeMultipleCalls(allow: boolean): void;
 
-  setCurrentCallActive(callUUID: string): void
+  setCurrentCallActive(callUUID: string): void;
 
-  backToForeground(): void
+  backToForeground(): void;
 }
 
-type Obj = Record<string, string>
+type Obj = Record<string, string>;
