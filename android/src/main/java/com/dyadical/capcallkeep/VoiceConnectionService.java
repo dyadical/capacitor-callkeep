@@ -281,7 +281,7 @@ public class VoiceConnectionService extends ConnectionService {
         // Avoid to call wake up the app again in wakeUpAfterReachabilityTimeout.
         this.currentConnectionRequest = null;
 
-        Intent headlessIntent = new Intent(this.getApplicationContext(), RNCallKeepBackgroundMessagingService.class);
+        Intent headlessIntent = new Intent(this.getApplicationContext(), CallKeepBackgroundMessagingService.class);
         headlessIntent.putExtra("callUUID", uuid);
         headlessIntent.putExtra("name", displayName);
         headlessIntent.putExtra("handle", number);

@@ -49,6 +49,7 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.PermissionCallback;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -285,7 +286,7 @@ public class CapCallKeepPlugin extends Plugin {
         Log.d(TAG, "[VoiceConnection] endAllCalls executed");
     }
 
-    @PluginMethod
+    @PermissionCallback
     public void checkPhoneAccountPermission() {
         // ReadableArray optionalPermissions, Promise promise
         // String[]
@@ -909,7 +910,7 @@ public class CapCallKeepPlugin extends Plugin {
                     sendEventToJS("RNCallKeepShowIncomingCallUi", args);
                     break;
                 case ACTION_WAKE_APP:
-                    Intent headlessIntent = new Intent(reactContext, RNCallKeepBackgroundMessagingService.class);
+                    Intent headlessIntent = new Intent(reactContext, CallKeepBackgroundMessagingService.class);
                     headlessIntent.putExtra("callUUID", attributeMap.get(EXTRA_CALL_UUID));
                     headlessIntent.putExtra("name", attributeMap.get(EXTRA_CALLER_NAME));
                     headlessIntent.putExtra("handle", attributeMap.get(EXTRA_CALL_NUMBER));

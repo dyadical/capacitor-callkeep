@@ -17,25 +17,28 @@
 
 package com.dyadical.capcallkeep;
 
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALLER_NAME;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_NUMBER;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_UUID;
+import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.JavaScriptModule;
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
+import java.util.Collections;
+import java.util.List;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import com.facebook.react.HeadlessJsTaskService;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.jstasks.HeadlessJsTaskConfig;
-import javax.annotation.Nullable;
-
-public class RNCallKeepBackgroundMessagingService extends HeadlessJsTaskService {
+public class CallKeepPackage implements ReactPackage {
 
     @Override
-    protected @Nullable HeadlessJsTaskConfig getTaskConfig(Intent intent) {
-        Bundle extras = intent.getExtras();
+    public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
+        return Collections.<NativeModule>singletonList(new RNCallKeepModule(reactContext));
+    }
 
-        return new HeadlessJsTaskConfig("RNCallKeepBackgroundMessage", Arguments.fromBundle(extras), 60000, false);
+    // Deprecated RN 0.47
+    public List<Class<? extends JavaScriptModule>> createJSModules() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
+        return Collections.emptyList();
     }
 }
