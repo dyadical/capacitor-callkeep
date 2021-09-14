@@ -14,6 +14,8 @@ npx cap sync
 <docgen-index>
 
 * [`echo(...)`](#echo)
+* [`checkPermissions()`](#checkpermissions)
+* [`requestPermissions()`](#requestpermissions)
 * [`getInitialEvents()`](#getinitialevents)
 * [`removeEventListener(...)`](#removeeventlistener)
 * [`setup(...)`](#setup)
@@ -66,6 +68,28 @@ echo(options: { value: string; }) => any
 | Param         | Type                            |
 | ------------- | ------------------------------- |
 | **`options`** | <code>{ value: string; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
+### checkPermissions()
+
+```typescript
+checkPermissions() => any
+```
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
+### requestPermissions()
+
+```typescript
+requestPermissions() => any
+```
 
 **Returns:** <code>any</code>
 
@@ -520,6 +544,17 @@ backToForeground() => void
 
 
 ### Interfaces
+
+
+#### PermissionStatus
+
+| Prop                   | Type                                                                      |
+| ---------------------- | ------------------------------------------------------------------------- |
+| **`readPhoneNumbers`** | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
+| **`readPhoneState`**   | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
+| **`manageOwnCalls`**   | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
+| **`callPhone`**        | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
+| **`recordAudio`**      | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
 
 
 #### IOptions

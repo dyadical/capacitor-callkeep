@@ -99,15 +99,15 @@ public class CapCallKeepPlugin extends Plugin {
 
     public void load() {
         staticBridge = this.bridge;
-        //        messagingService = new MessagingService();
+        // messagingService = new MessagingService();
     }
 
-    //    public RNCallKeepModule(ReactApplicationContext reactContext) {
-    //        super(reactContext);
-    //        Log.d(TAG, "[VoiceConnection] constructor");
+    // public RNCallKeepModule(ReactApplicationContext reactContext) {
+    // super(reactContext);
+    // Log.d(TAG, "[VoiceConnection] constructor");
     //
-    //        this.reactContext = reactContext;
-    //    }
+    // this.reactContext = reactContext;
+    // }
 
     private boolean isSelfManaged() {
         try {
@@ -117,10 +117,10 @@ public class CapCallKeepPlugin extends Plugin {
         }
     }
 
-    //    @Override
-    //    public String getName() {
-    //        return REACT_NATIVE_MODULE_NAME;
-    //    }
+    // @Override
+    // public String getName() {
+    // return REACT_NATIVE_MODULE_NAME;
+    // }
 
     @PluginMethod
     public void setup(PluginCall call) {
@@ -139,10 +139,11 @@ public class CapCallKeepPlugin extends Plugin {
 
         // If we're running in self managed mode we need fewer permissions.
         // TODO
-        //        if (isSelfManaged()) {
-        //            Log.d(TAG, "[VoiceConnection] setup, adding RECORD_AUDIO in permissions in self managed");
-        //            permissions = new String[] { Manifest.permission.RECORD_AUDIO };
-        //        }
+        // if (isSelfManaged()) {
+        // Log.d(TAG, "[VoiceConnection] setup, adding RECORD_AUDIO in permissions in
+        // self managed");
+        // permissions = new String[] { Manifest.permission.RECORD_AUDIO };
+        // }
 
         if (isConnectionServiceAvailable()) {
             Log.i(TAG, "registering phone account");
@@ -412,7 +413,7 @@ public class CapCallKeepPlugin extends Plugin {
         }
 
         CallAudioState newAudioState = null;
-        //if the requester wants to mute, do that. otherwise unmute
+        // if the requester wants to mute, do that. otherwise unmute
         if (shouldMute) {
             newAudioState = new CallAudioState(true, conn.getCallAudioState().getRoute(), conn.getCallAudioState().getSupportedRouteMask());
         } else {
@@ -424,6 +425,7 @@ public class CapCallKeepPlugin extends Plugin {
 
     /**
      * toggle audio route for speaker via connection service function
+     *
      * @param uuid
      * @param routeSpeaker
      */
@@ -838,25 +840,26 @@ public class CapCallKeepPlugin extends Plugin {
                 case ACTION_WAKE_APP:
                     Log.w(TAG, "ACTION_WAKE_UP NOT IMPLEMENTED");
                     // TODO
-                    //                    Intent headlessIntent = new Intent(getContext(), CallKeepBackgroundMessagingService.class);
-                    //                    headlessIntent.putExtra("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    //                    headlessIntent.putExtra("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    //                    headlessIntent.putExtra("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    //                    Log.d(
-                    //                        TAG,
-                    //                        "[VoiceConnection] wakeUpApplication: " +
-                    //                        attributeMap.get(EXTRA_CALL_UUID) +
-                    //                        ", number : " +
-                    //                        attributeMap.get(EXTRA_CALL_NUMBER) +
-                    //                        ", displayName:" +
-                    //                        attributeMap.get(EXTRA_CALLER_NAME)
-                    //                    );
+                    // Intent headlessIntent = new Intent(getContext(),
+                    // CallKeepBackgroundMessagingService.class);
+                    // headlessIntent.putExtra("callUUID", attributeMap.get(EXTRA_CALL_UUID));
+                    // headlessIntent.putExtra("name", attributeMap.get(EXTRA_CALLER_NAME));
+                    // headlessIntent.putExtra("handle", attributeMap.get(EXTRA_CALL_NUMBER));
+                    // Log.d(
+                    // TAG,
+                    // "[VoiceConnection] wakeUpApplication: " +
+                    // attributeMap.get(EXTRA_CALL_UUID) +
+                    // ", number : " +
+                    // attributeMap.get(EXTRA_CALL_NUMBER) +
+                    // ", displayName:" +
+                    // attributeMap.get(EXTRA_CALLER_NAME)
+                    // );
                     //
-                    //                    ComponentName name = getContext().startService(headlessIntent);
-                    //                    if (name != null) {
-                    //                        // TODO:
-                    //                        // HeadlessJsTaskService.acquireWakeLockNow(getContext());
-                    //                    }
+                    // ComponentName name = getContext().startService(headlessIntent);
+                    // if (name != null) {
+                    // // TODO:
+                    // // HeadlessJsTaskService.acquireWakeLockNow(getContext());
+                    // }
                     break;
                 case ACTION_ON_SILENCE_INCOMING_CALL:
                     args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));

@@ -1,4 +1,12 @@
-import type { PluginListenerHandle } from '@capacitor/core';
+import type { PluginListenerHandle, PermissionState } from '@capacitor/core';
+
+export interface PermissionStatus {
+  readPhoneNumbers: PermissionState;
+  readPhoneState: PermissionState;
+  manageOwnCalls: PermissionState;
+  callPhone: PermissionState;
+  recordAudio: PermissionState;
+}
 
 type PLH = Promise<PluginListenerHandle> & PluginListenerHandle;
 type L<T> = (t: T) => void;
@@ -21,16 +29,16 @@ type Events =
 
 type CallInfo = { callUUID: string; handle: string; name: string };
 interface Listeners {
-  addEventListener(type: 'endCall', l: L<UUID>): PLH;
-  addEventListener(type: 'answerCall', l: L<UUID>): PLH;
-  addEventListener(type: 'toggleHold', l: L<UUID & { hold: boolean }>): PLH;
-  addEventListener(type: 'setMutedCall', l: L<UUID & { muted: boolean }>): PLH;
-  addEventListener(type: 'DTMFAction', l: L<UUID & { digits: string }>): PLH;
-  addEventListener(type: 'startCall', l: L<CallInfo>): PLH;
-  addEventListener(type: 'activateAudioSession', l: L<void>): PLH;
-  addEventListener(type: 'checkReachability', l: L<void>): PLH;
-  addEventListener(type: 'showIncomingCallUi', l: L<CallInfo>): PLH;
-  addEventListener(type: 'silenceIncomingCall', l: L<CallInfo>): PLH;
+  addListener(type: 'endCall', l: L<UUID>): PLH;
+  addListener(type: 'answerCall', l: L<UUID>): PLH;
+  addListener(type: 'toggleHold', l: L<UUID & { hold: boolean }>): PLH;
+  addListener(type: 'setMutedCall', l: L<UUID & { muted: boolean }>): PLH;
+  addListener(type: 'DTMFAction', l: L<UUID & { digits: string }>): PLH;
+  addListener(type: 'startCall', l: L<CallInfo>): PLH;
+  addListener(type: 'activateAudioSession', l: L<void>): PLH;
+  addListener(type: 'checkReachability', l: L<void>): PLH;
+  addListener(type: 'showIncomingCallUi', l: L<CallInfo>): PLH;
+  addListener(type: 'silenceIncomingCall', l: L<CallInfo>): PLH;
 }
 
 export type AudioRoute = {
@@ -86,7 +94,8 @@ export const CONSTANTS = {
 // (everything returns a promise of an object)
 export interface CapCallKeepPlugin extends Listeners {
   echo(options: { value: string }): Promise<{ value: string }>;
-
+  checkPermissions(): Promise<PermissionStatus>;
+  requestPermissions(): Promise<PermissionStatus>;
   getInitialEvents(): Promise<Obj[]>;
 
   removeEventListener(type: Events): void;
