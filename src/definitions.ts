@@ -39,6 +39,8 @@ interface Listeners {
   addListener(type: 'checkReachability', l: L<void>): PLH;
   addListener(type: 'showIncomingCallUi', l: L<CallInfo>): PLH;
   addListener(type: 'silenceIncomingCall', l: L<CallInfo>): PLH;
+  /** iOS only */
+  addListener(type: 'registration', l: L<{ token: string }>): PLH;
 }
 
 export type AudioRoute = {
@@ -69,6 +71,33 @@ type PV = Promise<void>;
 type PB = Promise<{ value: boolean }>;
 // TODO: update return type signatures
 // (everything returns a promise of an object)
+
+export interface AndroidOptions {
+  selfManaged?: boolean;
+  imageName?: string;
+  foregroundService?: {
+    channelId: string;
+    channelName: string;
+    notificationTitle: string;
+    notificationIcon: string;
+  };
+}
+
+export interface IOSOptions {
+  appName: string;
+  imageName?: string;
+  supportsVideo?: boolean;
+  maximumCallGroups?: string;
+  maximumCallsPerCallGroup?: string;
+  ringtoneSound?: string;
+  includesCallsInRecents?: boolean;
+}
+
+export interface SetupOptions {
+  ios?: IOSOptions;
+  android?: AndroidOptions;
+}
+
 export interface CapCallKeepPlugin extends Listeners {
   echo(options: { value: string }): Promise<{ value: string }>;
   checkPermissions(): Promise<PermissionStatus>;
@@ -77,16 +106,9 @@ export interface CapCallKeepPlugin extends Listeners {
 
   removeEventListener(type: Events): void;
 
-  setup(options: {
-    selfManaged?: boolean;
-    imageName?: string;
-    foregroundService?: {
-      channelId: string;
-      channelName: string;
-      notificationTitle: string;
-      notificationIcon: string;
-    };
-  }): PV;
+  setup(options: SetupOptions): PV;
+  setupIOS(options: IOSOptions): PV;
+  setupAndroid(options: AndroidOptions): PV;
 
   hasDefaultPhoneAccount(): PB;
 

@@ -17,9 +17,9 @@ public class CapCallKeepPlugin: CAPPlugin {
     private let voipRegistry            = PKPushRegistry(queue: nil)
     private var connectionIdRegistry: [UUID: CallConfig] = [:]
 
-    @objc func register(_ call: CAPPluginCall) {
+    @objc func setupIos(_ call: CAPPluginCall) {
         dprint("register()")
-        let localizedName = call.getString("localizedName") ?? "App"
+        let localizedName = call.getString("appName") ?? "App"
         // config PushKit
         voipRegistry.delegate = self
         voipRegistry.desiredPushTypes = [.voIP]
@@ -125,7 +125,7 @@ extension CapCallKeepPlugin: CXProviderDelegate {
 
     public func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
         dprint("CXAnswerCallAction()")
-        notifyEvent(eventName: "callAnswered", uuid: action.callUUID)
+        notifyEvent(eventName: "answerCall", uuid: action.callUUID)
         // TODO: add hook to end call
         action.fulfill()
         //        endCall(uuid: action.callUUID)
@@ -133,13 +133,13 @@ extension CapCallKeepPlugin: CXProviderDelegate {
 
     public func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
         dprint("CXEndCallAction()")
-        notifyEvent(eventName: "callEnded", uuid: action.callUUID)
+        notifyEvent(eventName: "endCall", uuid: action.callUUID)
         action.fulfill()
     }
 
     public func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
         dprint("CXStartCallAction")
-        notifyEvent(eventName: "callStarted", uuid: action.callUUID)
+        notifyEvent(eventName: "startCall", uuid: action.callUUID)
         action.fulfill()
     }
 

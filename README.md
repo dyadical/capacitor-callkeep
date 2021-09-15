@@ -19,6 +19,8 @@ npx cap sync
 * [`getInitialEvents()`](#getinitialevents)
 * [`removeEventListener(...)`](#removeeventlistener)
 * [`setup(...)`](#setup)
+* [`setupIOS(...)`](#setupios)
+* [`setupAndroid(...)`](#setupandroid)
 * [`hasDefaultPhoneAccount()`](#hasdefaultphoneaccount)
 * [`answerIncomingCall(...)`](#answerincomingcall)
 * [`registerPhoneAccount()`](#registerphoneaccount)
@@ -124,12 +126,42 @@ removeEventListener(type: Events) => void
 ### setup(...)
 
 ```typescript
-setup(options: { selfManaged?: boolean; imageName?: string; foregroundService?: { channelId: string; channelName: string; notificationTitle: string; notificationIcon: string; }; }) => any
+setup(options: SetupOptions) => any
 ```
 
-| Param         | Type                                                                                                                                                                              |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`options`** | <code>{ selfManaged?: boolean; imageName?: string; foregroundService?: { channelId: string; channelName: string; notificationTitle: string; notificationIcon: string; }; }</code> |
+| Param         | Type                                                  |
+| ------------- | ----------------------------------------------------- |
+| **`options`** | <code><a href="#setupoptions">SetupOptions</a></code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
+### setupIOS(...)
+
+```typescript
+setupIOS(options: IOSOptions) => any
+```
+
+| Param         | Type                                              |
+| ------------- | ------------------------------------------------- |
+| **`options`** | <code><a href="#iosoptions">IOSOptions</a></code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
+
+### setupAndroid(...)
+
+```typescript
+setupAndroid(options: AndroidOptions) => any
+```
+
+| Param         | Type                                                      |
+| ------------- | --------------------------------------------------------- |
+| **`options`** | <code><a href="#androidoptions">AndroidOptions</a></code> |
 
 **Returns:** <code>any</code>
 
@@ -598,5 +630,35 @@ backToForeground() => any
 | **`manageOwnCalls`**   | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
 | **`callPhone`**        | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
 | **`recordAudio`**      | <code>"prompt" \| "prompt-with-rationale" \| "granted" \| "denied"</code> |
+
+
+#### SetupOptions
+
+| Prop          | Type                                                      |
+| ------------- | --------------------------------------------------------- |
+| **`ios`**     | <code><a href="#iosoptions">IOSOptions</a></code>         |
+| **`android`** | <code><a href="#androidoptions">AndroidOptions</a></code> |
+
+
+#### IOSOptions
+
+| Prop                           | Type                 |
+| ------------------------------ | -------------------- |
+| **`appName`**                  | <code>string</code>  |
+| **`imageName`**                | <code>string</code>  |
+| **`supportsVideo`**            | <code>boolean</code> |
+| **`maximumCallGroups`**        | <code>string</code>  |
+| **`maximumCallsPerCallGroup`** | <code>string</code>  |
+| **`ringtoneSound`**            | <code>string</code>  |
+| **`includesCallsInRecents`**   | <code>boolean</code> |
+
+
+#### AndroidOptions
+
+| Prop                    | Type                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **`selfManaged`**       | <code>boolean</code>                                                                                          |
+| **`imageName`**         | <code>string</code>                                                                                           |
+| **`foregroundService`** | <code>{ channelId: string; channelName: string; notificationTitle: string; notificationIcon: string; }</code> |
 
 </docgen-api>
