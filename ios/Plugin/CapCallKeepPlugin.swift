@@ -12,7 +12,7 @@ import UIKit
 // checkSpeaker: boolean
 // setMutedCall
 // getCalls: Call[]
-// notifyListeners("setMutedCall", data: [ "callUUID": string, "muted": boolean ])
+// [X] notifyListeners("setMutedCall", data: [ "callUUID": string, "muted": boolean ])
 // notifyListeners("silenceIncomingCall", data: [ callUUID: string; handle: string; name: string ])
 
 // Other items:
@@ -101,13 +101,15 @@ public class CapCallKeepPlugin: CAPPlugin {
         //        }
     }
 
-    public func notifyEvent(eventName: String, uuid: UUID) {
+    public func notifyEvent(eventName: String, uuid: UUID, info: [String: Any]? = nil) {
         dprint("notifyEvent(\(eventName))")
         if let config = connectionIdRegistry[uuid] {
-            notifyListeners(eventName, data: [
+            var data: [String: Any] = [
                 "callUUID": config.connectionId,
                 "handle": config.username,
-            ])
+            ]
+            info?.forEach { key, value in data[key] = value }
+            notifyListeners(eventName, data: data)
             // connectionIdRegistry[uuid] = nil
             // TODO: clear uuid from registry on hangup
         } else {
@@ -130,7 +132,10 @@ public class CapCallKeepPlugin: CAPPlugin {
         dprint("hangupCall()")
         let controller = CXCallController()
         let uuidString = call.getString("uuid") ?? ""
-        guard let uuid = uuidString == "" ? controller.callObserver.calls[0].uuid : UUID(uuidString: uuidString) else { call.reject("no uuid provided or no known one") }
+        guard let uuid = uuidString == "" ? controller.callObserver.calls[0].uuid : UUID(uuidString: uuidString)
+        else { call.reject("no uuid provided or no known one")
+            return
+        }
         // TODO: call.reject() if no calls
         // let uuid = controller.callObserver.calls[0].uuid
 //        let controller = CXCallController()
@@ -167,12 +172,16 @@ extension CapCallKeepPlugin: CXProviderDelegate {
         action.fulfill()
     }
 
-    public func provider(_: CXProvider, perform _: CXPlayDTMFCallAction) {
+    public func provider(_: CXProvider, perform action: CXPlayDTMFCallAction) {
         dprint("CXPlayDTMFCallAction")
+        notifyEvent(eventName: "DTMFAction", uuid: action.callUUID) // TODO: add digits
+        action.fulfill()
     }
 
-    public func provider(_: CXProvider, perform _: CXSetMutedCallAction) {
+    public func provider(_: CXProvider, perform action: CXSetMutedCallAction) {
         dprint("CXSetMutedCallAction")
+        notifyEvent(eventName: "setMutedCall", uuid: action.callUUID, info: ["muted": action.isMuted])
+        action.fulfill()
     }
 }
 
