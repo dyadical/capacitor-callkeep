@@ -12,7 +12,7 @@
 #import <UIKit/UIKit.h>
 //#import <AVFoundation/AVAudioSession.h>
 
-#import <React/RCTEventEmitter.h>
+//#import <React/RCTEventEmitter.h>
 
 @interface RNCallKeep : RCTEventEmitter<CXProviderDelegate>
 

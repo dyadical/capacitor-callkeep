@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		03FC29A292ACC40490383A1F /* Pods_Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */; };
-		0B38CF0226F24CE200BFEEAA /* RNCallKeep.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B38CF0026F24CE200BFEEAA /* RNCallKeep.m */; };
-		0B38CF0326F24CE200BFEEAA /* RNCallKeep.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B38CF0126F24CE200BFEEAA /* RNCallKeep.h */; };
+		0B38CF0226F24CE200BFEEAA /* CallKeep.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B38CF0026F24CE200BFEEAA /* CallKeep.m */; };
+		0B38CF0326F24CE200BFEEAA /* CallKeep.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B38CF0126F24CE200BFEEAA /* CallKeep.h */; };
 		20C0B05DCFC8E3958A738AF2 /* Pods_PluginTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6753A823D3815DB436415E3 /* Pods_PluginTests.framework */; };
 		2F98D68224C9AAE500613A4C /* CapCallKeep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F98D68124C9AAE400613A4C /* CapCallKeep.swift */; };
 		50ADFF92201F53D600D50D53 /* Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50ADFF88201F53D600D50D53 /* Plugin.framework */; };
@@ -31,8 +31,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0B38CF0026F24CE200BFEEAA /* RNCallKeep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNCallKeep.m; sourceTree = "<group>"; };
-		0B38CF0126F24CE200BFEEAA /* RNCallKeep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNCallKeep.h; sourceTree = "<group>"; };
+		0B38CF0026F24CE200BFEEAA /* CallKeep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CallKeep.m; sourceTree = "<group>"; };
+		0B38CF0126F24CE200BFEEAA /* CallKeep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CallKeep.h; sourceTree = "<group>"; };
 		2F98D68124C9AAE400613A4C /* CapCallKeep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CapCallKeep.swift; sourceTree = "<group>"; };
 		3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Plugin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		50ADFF88201F53D600D50D53 /* Plugin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Plugin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,8 +98,8 @@
 			children = (
 				50E1A94720377CB70090CE1A /* CapCallKeepPlugin.swift */,
 				2F98D68124C9AAE400613A4C /* CapCallKeep.swift */,
-				0B38CF0126F24CE200BFEEAA /* RNCallKeep.h */,
-				0B38CF0026F24CE200BFEEAA /* RNCallKeep.m */,
+				0B38CF0126F24CE200BFEEAA /* CallKeep.h */,
+				0B38CF0026F24CE200BFEEAA /* CallKeep.m */,
 				50ADFF8B201F53D600D50D53 /* CapCallKeepPlugin.h */,
 				50ADFFA72020EE4F00D50D53 /* CapCallKeepPlugin.m */,
 				50ADFF8C201F53D600D50D53 /* Info.plist */,
@@ -145,7 +145,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				50ADFF99201F53D600D50D53 /* CapCallKeepPlugin.h in Headers */,
-				0B38CF0326F24CE200BFEEAA /* RNCallKeep.h in Headers */,
+				0B38CF0326F24CE200BFEEAA /* CallKeep.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,7 +313,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B38CF0226F24CE200BFEEAA /* RNCallKeep.m in Sources */,
+				0B38CF0226F24CE200BFEEAA /* CallKeep.m in Sources */,
 				50E1A94820377CB70090CE1A /* CapCallKeepPlugin.swift in Sources */,
 				2F98D68224C9AAE500613A4C /* CapCallKeep.swift in Sources */,
 				50ADFFA82020EE4F00D50D53 /* CapCallKeepPlugin.m in Sources */,
