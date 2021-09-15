@@ -4,6 +4,33 @@ import Foundation
 import PushKit
 import UIKit
 
+// TODO:
+// notifyListeners("toggleHold", data: [ "callUUID": string, "hold": boolean ])
+// notifyListeners("setMutedCall", data: [ "callUUID": string, "muted": boolean ])
+// notifyListeners("DTMFAction", data: [ "callUUID": string, "digits": string ])
+// notifyListeners("activateAudioSession", data: [  ])
+// notifyListeners("checkReachability", data: [  ])
+// notifyListeners("showIncomingCallUi", data: [ callUUID: string; handle: string; name: string ])
+// notifyListeners("silenceIncomingCall", data: [ callUUID: string; handle: string; name: string ])
+
+// hasDefaultPhoneAccount
+// reportConnectedOutgoingCallWithUUID
+// reportConnectingOutgoingCallWithUUID
+// isCallActive
+// setMutedCall
+// getInitialEvents: Event[]
+// getCalls: Call[]
+// checkIfBusy: boolean
+// checkSpeaker: boolean
+// displayIncomingCall
+// startCall
+// endAllCalls
+// setReachable
+// getAudioRoutes
+// setAudioRoute
+// setOnHold
+// sendDTMF
+
 let printDebug = true
 
 /**
@@ -99,19 +126,16 @@ public class CapCallKeepPlugin: CAPPlugin {
         provider?.reportNewIncomingCall(with: uuid, update: update, completion: { _ in })
     }
 
-    @objc public func hangupCall(_ call: CAPPluginCall) {
+    @objc public func endCall(_ call: CAPPluginCall) {
         dprint("hangupCall()")
         let controller = CXCallController()
-        let uuid = controller.callObserver.calls[0].uuid
-        endCall(uuid: uuid)
-        call.resolve()
-    }
-
-    public func endCall(uuid: UUID) {
-        dprint("endCall()")
+        let uuid = call.getString("uuid") ?? controller.callObserver.calls[0].uuid
+        // TODO: call.reject() if no calls
+        // let uuid = controller.callObserver.calls[0].uuid
         let controller = CXCallController()
         let transaction = CXTransaction(action: CXEndCallAction(call: uuid))
         controller.request(transaction, completion: { _ in })
+        call.resolve()
     }
 }
 

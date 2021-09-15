@@ -35,7 +35,7 @@
     "lint": "npm run eslint && npm run prettier -- --check",
     "lintswift": "node-swiftlint -- lint",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
-    "fmtswift": "swiftformat ios/Plugin",
+    "fmtswift": "swiftformat --swiftversion 5.4.2 ios/Plugin/CapCallKeepPlugin.swift",
     "fmtc": "clang-format -i -style=file ios/Plugin/*.[hm]",
     "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",

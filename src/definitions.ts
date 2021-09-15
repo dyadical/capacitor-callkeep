@@ -15,20 +15,32 @@ type HandleType = 'generic' | 'number' | 'email';
 
 type UUID = { callUUID: string };
 
-type Events =
-  | 'endCall'
-  | 'answerCall'
-  | 'toggleHold'
-  | 'setMutedCall'
-  | 'DTMFAction'
-  | 'startCall'
-  | 'activateAudioSession'
-  | 'checkReachability'
-  | 'showIncomingCallUi'
-  | 'silenceIncomingCall';
+// type Events = | 'endCall' | 'answerCall' | 'toggleHold' | 'setMutedCall' | 'DTMFAction' | 'startCall' | 'activateAudioSession' | 'checkReachability' | 'showIncomingCallUi' | 'silenceIncomingCall';
 
 type CallInfo = { callUUID: string; handle: string; name: string };
-interface Listeners {
+
+interface AndroidOptions {
+  selfManaged?: boolean;
+  imageName?: string;
+  foregroundService?: {
+    channelId: string;
+    channelName: string;
+    notificationTitle: string;
+    notificationIcon: string;
+  };
+}
+
+interface IOSOptions {
+  appName: string;
+  imageName?: string;
+  supportsVideo?: boolean;
+  maximumCallGroups?: string;
+  maximumCallsPerCallGroup?: string;
+  ringtoneSound?: string;
+  includesCallsInRecents?: boolean;
+}
+export interface CapCallKeepPlugin {
+  // export interface Listeners {
   addListener(type: 'endCall', l: L<UUID>): PLH;
   addListener(type: 'answerCall', l: L<UUID>): PLH;
   addListener(type: 'toggleHold', l: L<UUID & { hold: boolean }>): PLH;
@@ -41,20 +53,83 @@ interface Listeners {
   addListener(type: 'silenceIncomingCall', l: L<CallInfo>): PLH;
   /** iOS only */
   addListener(type: 'registration', l: L<{ token: string }>): PLH;
+  // }
+
+  // export interface AndroidOnly {
+  echo(options: { value: string }): Promise<{ value: string }>;
+  setupAndroid(options: AndroidOptions): PV;
+  supportConnectionService(): PB;
+  registerPhoneAccount(): PV;
+  hasPhoneAccount(): PB;
+  hasDefaultPhoneAccount(): PB;
+  checkPhoneAccountEnabled(): PB;
+  toggleAudioRouteSpeaker(o: { uuid: string; routeSpeaker: boolean }): PV;
+  setAvailable(o: { active: boolean }): PV;
+  registerAndroidEvents(): PV;
+  isConnectionServiceAvailable(): PB;
+  rejectCall(o: { uuid: string }): PV;
+  hasOutgoingCall(): PB;
+  setForegroundServiceSettings(o: { settings: Obj }): PV;
+  canMakeMultipleCalls(o: { allow: boolean }): PV;
+  setCurrentCallActive(o: { callUUID: string }): PV;
+  backToForeground(): PV;
+  // }
+
+  // export interface IOSOnly {
+  setupIOS(options: IOSOptions): PV;
+  reportConnectedOutgoingCallWithUUID(args: { uuid: string }): PV;
+  reportConnectingOutgoingCallWithUUID(o: { uuid: string }): PV;
+  isCallActive(o: { uuid: string }): PB;
+  setMutedCall(o: { uuid: string; muted: boolean }): PV;
+  getInitialEvents(): Promise<{ name: string; body: string }[]>; // TODO: double check this type
+  getCalls(): Promise<Call[]>;
+  checkIfBusy(): PB;
+  checkSpeaker(): PB;
+  // }
+
+  // export interface IOSOrAndroid {
+  // Ios or android:
+  checkPermissions(): Promise<PermissionStatus>;
+  requestPermissions(): Promise<PermissionStatus>;
+  // removeEventListener(type: Events): void; // TODO
+  answerIncomingCall(o: { uuid: string }): PV;
+  // TODO: different args for below three functions between ios and android
+  // See: https://github1s.com/react-native-webrtc/react-native-callkeep/blob/HEAD/index.js#L73-L74
+  displayIncomingCall(o: {
+    uuid: string;
+    handle: string;
+    localizedCallerName?: string;
+    handleType?: HandleType;
+    hasVideo?: boolean;
+    options?: IncomingCallOptions;
+  }): PV;
+  startCall(o: {
+    uuid: string;
+    handle: string;
+    contactIdentifier?: string;
+    handleType?: HandleType;
+    hasVideo?: boolean;
+  }): PV;
+  updateDisplay(o: {
+    uuid: string;
+    displayName: string;
+    handle: string;
+    options?: IncomingCallOptions;
+  }): PV;
+  reportEndCallWithUUID(o: { uuid: string; reason: number }): PV;
+  endCall(o: { uuid: string }): PV;
+  endAllCalls(): PV;
+  setReachable(): PV;
+  getAudioRoutes(): PV;
+  setAudioRoute(o: { uuid: string; inputName: string }): PV;
+  setOnHold(o: { uuid: string; held: boolean }): PV;
+  /** sendDTMF is used to send DTMF tones to the PBX. */
+  sendDTMF(o: { uuid: string; key: string }): PV;
+  // }
 }
 
-export type AudioRoute = {
-  name: string;
-  type: string;
-};
-
-// interface IOptions { ios: { appName: string; imageName?: string; supportsVideo?: boolean; maximumCallGroups?: string; maximumCallsPerCallGroup?: string; ringtoneSound?: string; includesCallsInRecents?: boolean; }; android: { alertTitle: string; alertDescription: string; cancelButton: string; okButton: string; imageName?: string; additionalPermissions: string[]; selfManaged?: boolean; foregroundService?: { channelId: string; channelName: string; notificationTitle: string; notificationIcon?: string; }; }; }
-
-export type DidReceiveStartCallActionPayload = { handle: string };
-export type AnswerCallPayload = { callUUID: string };
-export type EndCallPayload = AnswerCallPayload;
-export type DidDisplayIncomingCallPayload = string | undefined;
-export type DidPerformSetMutedCallActionPayload = boolean;
+// NOTE: better, but messes up docgen:
+// export interface CapCallKeepPlugin extends Listeners, AndroidOnly, IOSOnly, IOSOrAndroid {}
 
 export const CONSTANTS = {
   END_CALL_REASONS: {
@@ -72,155 +147,21 @@ type PB = Promise<{ value: boolean }>;
 // TODO: update return type signatures
 // (everything returns a promise of an object)
 
-export interface AndroidOptions {
-  selfManaged?: boolean;
-  imageName?: string;
-  foregroundService?: {
-    channelId: string;
-    channelName: string;
-    notificationTitle: string;
-    notificationIcon: string;
-  };
-}
-
-export interface IOSOptions {
-  appName: string;
-  imageName?: string;
-  supportsVideo?: boolean;
-  maximumCallGroups?: string;
-  maximumCallsPerCallGroup?: string;
-  ringtoneSound?: string;
-  includesCallsInRecents?: boolean;
-}
-
-export interface SetupOptions {
-  ios?: IOSOptions;
-  android?: AndroidOptions;
-}
-
-export interface CapCallKeepPlugin extends Listeners {
-  echo(options: { value: string }): Promise<{ value: string }>;
-  checkPermissions(): Promise<PermissionStatus>;
-  requestPermissions(): Promise<PermissionStatus>;
-  getInitialEvents(): Promise<Obj[]>;
-
-  removeEventListener(type: Events): void;
-
-  setup(options: SetupOptions): PV;
-  setupIOS(options: IOSOptions): PV;
-  setupAndroid(options: AndroidOptions): PV;
-
-  hasDefaultPhoneAccount(): PB;
-
-  answerIncomingCall(o: { uuid: string }): PV;
-
-  registerPhoneAccount(): PV;
-
-  registerAndroidEvents(): PV;
-
-  displayIncomingCall(o: {
-    uuid: string;
-    handle: string;
-    localizedCallerName?: string;
-    handleType?: HandleType;
-    hasVideo?: boolean;
-    options?: Obj;
-  }): PV;
-
-  startCall(o: {
-    uuid: string;
-    handle: string;
-    contactIdentifier?: string;
-    handleType?: HandleType;
-    hasVideo?: boolean;
-  }): PV;
-
-  updateDisplay(o: {
-    uuid: string;
-    displayName: string;
-    handle: string;
-    options?: Obj;
-  }): PV;
-
-  checkPhoneAccountEnabled(): PB;
-
-  isConnectionServiceAvailable(): PB;
-
-  /**
-   * @description reportConnectedOutgoingCallWithUUID method is available only on iOS.
-   */
-  reportConnectedOutgoingCallWithUUID(args: { uuid: string }): PV;
-
-  /**
-   * @description reportConnectedOutgoingCallWithUUID method is available only on iOS.
-   */
-  reportConnectingOutgoingCallWithUUID(o: { uuid: string }): PV;
-
-  reportEndCallWithUUID(o: { uuid: string; reason: number }): PV;
-
-  rejectCall(o: { uuid: string }): PV;
-
-  endCall(o: { uuid: string }): PV;
-
-  endAllCalls(): PV;
-
-  setReachable(): PV;
-
-  /**
-   * @description isCallActive method is available only on iOS.
-   */
-  isCallActive(o: { uuid: string }): PB;
-
-  getCalls(): Promise<Obj>;
-
-  getAudioRoutes(): PV;
-
-  setAudioRoute(o: { uuid: string; inputName: string }): PV;
-
-  /**
-   * @description supportConnectionService method is available only on Android.
-   */
-  supportConnectionService(): PB;
-
-  /**
-   * @description hasPhoneAccount method is available only on Android.
-   */
-  hasPhoneAccount(): PB;
-
-  hasOutgoingCall(): PB;
-
-  /**
-   * @description setMutedCall method is available only on iOS.
-   */
-  setMutedCall(o: { uuid: string; muted: boolean }): PV;
-
-  /**
-   * @description toggleAudioRouteSpeaker method is available only on Android.
-   */
-  toggleAudioRouteSpeaker(o: { uuid: string; routeSpeaker: boolean }): PV;
-  setOnHold(o: { uuid: string; held: boolean }): PV;
-
-  /**
-   * @descriptions sendDTMF is used to send DTMF tones to the PBX.
-   */
-  sendDTMF(o: { uuid: string; key: string }): PV;
-
-  checkIfBusy(): PB;
-
-  checkSpeaker(): PB;
-
-  /**
-   * @description setAvailable method is available only on Android.
-   */
-  setAvailable(o: { active: boolean }): PV;
-
-  setForegroundServiceSettings(o: { settings: Obj }): PV;
-
-  canMakeMultipleCalls(o: { allow: boolean }): PV;
-
-  setCurrentCallActive(o: { callUUID: string }): PV;
-
-  backToForeground(): PV;
+interface Call {
+  callUUID: string;
+  outgoing: boolean;
+  onHold: boolean;
+  hasConnected: boolean;
+  hasEnded: boolean;
 }
 
 type Obj = Record<string, string>;
+
+interface IncomingCallOptions {
+  ios?: {
+    supportsHolding?: boolean;
+    supportsDTMF?: boolean;
+    supportsGrouping?: boolean;
+    supportsUngrouping?: boolean;
+  };
+}
