@@ -35,7 +35,7 @@
     "lint": "npm run eslint && npm run prettier -- --check",
     "lintswift": "node-swiftlint -- lint",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
-    "fmtswift": "node-swiftlint --fix ios/Plugin",
+    "fmtswift": "swiftformat ios/Plugin",
     "fmtc": "clang-format -i -style=file ios/Plugin/*.[hm]",
     "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
@@ -44,6 +44,7 @@
     "swiftlint": "node-swiftlint",
     "docgen": "docgen --api CapCallKeepPlugin --output-readme README.md --output-json dist/docs.json",
     "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.js",
+    "ezb": "tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build"

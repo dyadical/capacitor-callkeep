@@ -1,8 +1,8 @@
-import Foundation
-import Capacitor
-import UIKit
 import CallKit
+import Capacitor
+import Foundation
 import PushKit
+import UIKit
 
 let printDebug = true
 
@@ -11,13 +11,12 @@ let printDebug = true
  */
 @objc(CapCallKeepPlugin)
 public class CapCallKeepPlugin: CAPPlugin {
-
     private var provider: CXProvider?
     // private let implementation          = CallKitVoip()
-    private let voipRegistry            = PKPushRegistry(queue: nil)
+    private let voipRegistry = PKPushRegistry(queue: nil)
     private var connectionIdRegistry: [UUID: CallConfig] = [:]
 
-    @objc func setupIos(_ call: CAPPluginCall) {
+    @objc func setupIOS(_ call: CAPPluginCall) {
         dprint("register()")
         let localizedName = call.getString("appName") ?? "App"
         // config PushKit
@@ -46,7 +45,7 @@ public class CapCallKeepPlugin: CAPPlugin {
         let handleTypes = [
             "generic": CXHandle.HandleType.generic,
             "phoneNumber": CXHandle.HandleType.phoneNumber,
-            "emailAddress": CXHandle.HandleType.emailAddress
+            "emailAddress": CXHandle.HandleType.emailAddress,
         ]
         guard let handleType = handleTypes[calleeType] else {
             call.reject("unknown calleeType \(calleeType) must be one of \(handleTypes.keys)")
@@ -79,8 +78,8 @@ public class CapCallKeepPlugin: CAPPlugin {
         dprint("notifyEvent(\(eventName))")
         if let config = connectionIdRegistry[uuid] {
             notifyListeners(eventName, data: [
-                "connectionId": config.connectionId,
-                "username": config.username
+                "callUUID": config.connectionId,
+                "handle": config.username,
             ])
             // connectionIdRegistry[uuid] = nil
             // TODO: clear uuid from registry on hangup
@@ -91,13 +90,13 @@ public class CapCallKeepPlugin: CAPPlugin {
 
     public func incomingCall(from: String, connectionId: String) {
         dprint("incomingCall()")
-        let update          = CXCallUpdate()
+        let update = CXCallUpdate()
         update.remoteHandle = CXHandle(type: .generic, value: from)
-        update.hasVideo     = true
+        update.hasVideo = true
 
         let uuid = UUID()
         connectionIdRegistry[uuid] = .init(connectionId: connectionId, username: from)
-        self.provider?.reportNewIncomingCall(with: uuid, update: update, completion: { (_) in })
+        provider?.reportNewIncomingCall(with: uuid, update: update, completion: { _ in })
     }
 
     @objc public func hangupCall(_ call: CAPPluginCall) {
@@ -119,11 +118,11 @@ public class CapCallKeepPlugin: CAPPlugin {
 // MARK: CallKit events handler
 
 extension CapCallKeepPlugin: CXProviderDelegate {
-    public func providerDidReset(_ provider: CXProvider) {
+    public func providerDidReset(_: CXProvider) {
         dprint("provider did reset")
     }
 
-    public func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
+    public func provider(_: CXProvider, perform action: CXAnswerCallAction) {
         dprint("CXAnswerCallAction()")
         notifyEvent(eventName: "answerCall", uuid: action.callUUID)
         // TODO: add hook to end call
@@ -131,39 +130,38 @@ extension CapCallKeepPlugin: CXProviderDelegate {
         //        endCall(uuid: action.callUUID)
     }
 
-    public func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
+    public func provider(_: CXProvider, perform action: CXEndCallAction) {
         dprint("CXEndCallAction()")
         notifyEvent(eventName: "endCall", uuid: action.callUUID)
         action.fulfill()
     }
 
-    public func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
+    public func provider(_: CXProvider, perform action: CXStartCallAction) {
         dprint("CXStartCallAction")
         notifyEvent(eventName: "startCall", uuid: action.callUUID)
         action.fulfill()
     }
 
-    public func provider(_ provider: CXProvider, perform action: CXPlayDTMFCallAction) {
+    public func provider(_: CXProvider, perform _: CXPlayDTMFCallAction) {
         dprint("CXPlayDTMFCallAction")
     }
 
-    public func provider(_ provider: CXProvider, perform action: CXSetMutedCallAction) {
+    public func provider(_: CXProvider, perform _: CXSetMutedCallAction) {
         dprint("CXSetMutedCallAction")
     }
-
 }
 
 // MARK: PushKit events handler
-extension CapCallKeepPlugin: PKPushRegistryDelegate {
 
-    public func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
+extension CapCallKeepPlugin: PKPushRegistryDelegate {
+    public func pushRegistry(_: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for _: PKPushType) {
         dprint("pushRegistry didUpdate")
         let parts = pushCredentials.token.map { String(format: "%02.2hhx", $0) }
         let token = parts.joined()
         notifyListeners("registration", data: ["token": token])
     }
 
-    public func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
+    public func pushRegistry(_: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for _: PKPushType, completion _: @escaping () -> Void) {
         dprint("pushRegistry didReceiveIncomingPushWith")
 
         guard let connectionId = payload.dictionaryPayload["ConnectionId"] as? String else {
@@ -171,9 +169,9 @@ extension CapCallKeepPlugin: PKPushRegistryDelegate {
             return
         }
 
-        let username        = (payload.dictionaryPayload["Username"] as? String) ?? "Anonymus"
+        let username = (payload.dictionaryPayload["Username"] as? String) ?? "Anonymus"
 
-        self.incomingCall(from: username, connectionId: connectionId)
+        incomingCall(from: username, connectionId: connectionId)
     }
 }
 
@@ -181,6 +179,12 @@ extension CapCallKeepPlugin {
     struct CallConfig {
         let connectionId: String
         let username: String
+    }
+
+    struct CallInfo {
+        let callUUID: String
+        let handle: String
+        let name: String
     }
 }
 
