@@ -4,27 +4,27 @@ import Foundation
 import PushKit
 import UIKit
 
-// TODO:
-// notifyListeners("toggleHold", data: [ "callUUID": string, "hold": boolean ])
+// Main TODO in order of priority:
+// endAllCalls
+// notifyListeners("showIncomingCallUi", data: [ callUUID: string; handle: string; name: string ])
+// checkIfBusy: boolean
+// isCallActive
+// checkSpeaker: boolean
+// setMutedCall
+// getCalls: Call[]
 // notifyListeners("setMutedCall", data: [ "callUUID": string, "muted": boolean ])
+// notifyListeners("silenceIncomingCall", data: [ callUUID: string; handle: string; name: string ])
+
+// Other items:
+// notifyListeners("toggleHold", data: [ "callUUID": string, "hold": boolean ])
 // notifyListeners("DTMFAction", data: [ "callUUID": string, "digits": string ])
 // notifyListeners("activateAudioSession", data: [  ])
 // notifyListeners("checkReachability", data: [  ])
-// notifyListeners("showIncomingCallUi", data: [ callUUID: string; handle: string; name: string ])
-// notifyListeners("silenceIncomingCall", data: [ callUUID: string; handle: string; name: string ])
-
 // hasDefaultPhoneAccount
 // reportConnectedOutgoingCallWithUUID
 // reportConnectingOutgoingCallWithUUID
-// isCallActive
-// setMutedCall
 // getInitialEvents: Event[]
-// getCalls: Call[]
-// checkIfBusy: boolean
-// checkSpeaker: boolean
 // displayIncomingCall
-// startCall
-// endAllCalls
 // setReachable
 // getAudioRoutes
 // setAudioRoute
@@ -129,10 +129,11 @@ public class CapCallKeepPlugin: CAPPlugin {
     @objc public func endCall(_ call: CAPPluginCall) {
         dprint("hangupCall()")
         let controller = CXCallController()
-        let uuid = call.getString("uuid") ?? controller.callObserver.calls[0].uuid
+        let uuidString = call.getString("uuid") ?? ""
+        guard let uuid = uuidString == "" ? controller.callObserver.calls[0].uuid : UUID(uuidString: uuidString) else { call.reject("no uuid provided or no known one") }
         // TODO: call.reject() if no calls
         // let uuid = controller.callObserver.calls[0].uuid
-        let controller = CXCallController()
+//        let controller = CXCallController()
         let transaction = CXTransaction(action: CXEndCallAction(call: uuid))
         controller.request(transaction, completion: { _ in })
         call.resolve()
