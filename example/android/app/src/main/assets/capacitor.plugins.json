@@ -1,0 +1,6 @@
+[
+	{
+		"pkg": "capacitor-callkeep",
+		"classpath": "com.dyadical.capcallkeep.CapCallKeepPlugin"
+	}
+]

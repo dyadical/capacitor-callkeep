@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "start": "npx webpack watch --mode=development ./src/script.js -o ./www/build/",
+    "build": "npx webpack build --mode=development ./src/script.js -o ./www/build/ && npx cap sync android",
+    "buildprod": "npx webpack build --mode=production ./src/script.js -o ./www/build/ && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^3.2.2",
+    "@capacitor/core": "^3.2.2",
+    "capacitor-callkeep": "file:../"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^3.2.2",
+    "webpack-cli": "^4.8.0"
+  }
+}
