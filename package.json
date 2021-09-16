@@ -40,7 +40,7 @@
     "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "fmtts": "prettier --write \"src/*.ts\"",
-    "precommit": "npm run fmtts && npm run fmtswift && npm run fmtc && npm run build",
+    "precommit": "npm run prettier -- --write && npm run fmtswift && npm run fmtc && npm run build",
     "swiftlint": "node-swiftlint",
     "docgen": "docgen --api CapCallKeepPlugin --output-readme README.md --output-json dist/docs.json",
     "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.js",
