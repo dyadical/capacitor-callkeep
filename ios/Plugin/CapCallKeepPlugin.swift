@@ -5,31 +5,31 @@ import PushKit
 import UIKit
 
 // Main TODO in order of priority:
-// endAllCalls
-// notifyListeners("showIncomingCallUi", data: [ callUUID: string; handle: string; name: string ])
-// checkIfBusy: boolean
-// isCallActive
-// checkSpeaker: boolean
-// setMutedCall
-// getCalls: Call[]
+// [X] endAllCalls
+// [ ] notifyListeners("showIncomingCallUi", data: [ callUUID: string; handle: string; name: string ])
+// [ ] checkIfBusy: boolean
+// [ ] isCallActive
+// [ ] checkSpeaker: boolean
+// [ ] setMutedCall
+// [ ] getCalls: Call[]
 // [X] notifyListeners("setMutedCall", data: [ "callUUID": string, "muted": boolean ])
-// notifyListeners("silenceIncomingCall", data: [ callUUID: string; handle: string; name: string ])
+// [ ] notifyListeners("silenceIncomingCall", data: [ callUUID: string; handle: string; name: string ])
 
 // Other items:
-// notifyListeners("toggleHold", data: [ "callUUID": string, "hold": boolean ])
-// notifyListeners("DTMFAction", data: [ "callUUID": string, "digits": string ])
-// notifyListeners("activateAudioSession", data: [  ])
-// notifyListeners("checkReachability", data: [  ])
-// hasDefaultPhoneAccount
-// reportConnectedOutgoingCallWithUUID
-// reportConnectingOutgoingCallWithUUID
-// getInitialEvents: Event[]
-// displayIncomingCall
-// setReachable
-// getAudioRoutes
-// setAudioRoute
-// setOnHold
-// sendDTMF
+// [ ] notifyListeners("toggleHold", data: [ "callUUID": string, "hold": boolean ])
+// [ ] notifyListeners("DTMFAction", data: [ "callUUID": string, "digits": string ])
+// [ ] notifyListeners("activateAudioSession", data: [  ])
+// [ ] notifyListeners("checkReachability", data: [  ])
+// [ ] hasDefaultPhoneAccount
+// [ ] reportConnectedOutgoingCallWithUUID
+// [ ] reportConnectingOutgoingCallWithUUID
+// [ ] getInitialEvents: Event[]
+// [ ] displayIncomingCall
+// [ ] setReachable
+// [ ] getAudioRoutes
+// [ ] setAudioRoute
+// [ ] setOnHold
+// [ ] sendDTMF
 
 let printDebug = true
 
@@ -129,7 +129,7 @@ public class CapCallKeepPlugin: CAPPlugin {
     }
 
     @objc public func endCall(_ call: CAPPluginCall) {
-        dprint("hangupCall()")
+        dprint("endCall()")
         let controller = CXCallController()
         let uuidString = call.getString("uuid") ?? ""
         guard let uuid = uuidString == "" ? controller.callObserver.calls[0].uuid : UUID(uuidString: uuidString)
@@ -141,6 +141,16 @@ public class CapCallKeepPlugin: CAPPlugin {
 //        let controller = CXCallController()
         let transaction = CXTransaction(action: CXEndCallAction(call: uuid))
         controller.request(transaction, completion: { _ in })
+        call.resolve()
+    }
+
+    @objc public func endAllCalls(_ call: CAPPluginCall) {
+        dprint("endAllCalls()")
+        let controller = CXCallController()
+        for c in controller.callObserver.calls {
+            let transaction = CXTransaction(action: CXEndCallAction(call: c.uuid))
+            controller.request(transaction, completion: { _ in })
+        }
         call.resolve()
     }
 }
