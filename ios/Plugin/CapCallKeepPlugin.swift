@@ -213,7 +213,7 @@ extension CapCallKeepPlugin: PKPushRegistryDelegate {
             return
         }
 
-        let username = (payload.dictionaryPayload["Username"] as? String) ?? "Anonymus"
+        let username = (payload.dictionaryPayload["Username"] as? String) ?? "Anonymous"
 
         incomingCall(from: username, connectionId: connectionId)
     }
