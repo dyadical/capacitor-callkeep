@@ -1,0 +1,16 @@
+BasedOnStyle: LLVM
+
+AlignTrailingComments: true
+AllowShortIfStatementsOnASingleLine: true
+BreakBeforeBraces: Attach
+ColumnLimit: 120
+IndentWidth: 4
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 2
+ObjCSpaceAfterProperty: true
+ObjCSpaceBeforeProtocolList: false
+PointerBindsToType: false
+SpacesBeforeTrailingComments: 1
+TabWidth: 4
+UseTab: Never
+ObjCBlockIndentWidth: 4

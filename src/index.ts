@@ -3,7 +3,9 @@ import { registerPlugin } from '@capacitor/core';
 import type { CapCallKeepPlugin } from './definitions';
 
 const CapCallKeep = registerPlugin<CapCallKeepPlugin>('CapCallKeep', {
-  // web: () => import('./web').then(m => new m.CapCallKeepWeb()),
+  web: () => {
+    throw Error('not implemented on web');
+  },
 });
 
 export * from './definitions';
