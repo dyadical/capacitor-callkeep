@@ -54,6 +54,8 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     // TODO: is this okay? Should it be version 28?
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+    // TODO: why is this necessary? remove?
+    implementation project(path: ':capacitor-android')
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

@@ -123,7 +123,7 @@ public class CapCallKeepPlugin extends Plugin {
     // }
 
     @PluginMethod
-    public void setup(PluginCall call) {
+    public void setupAndroid(PluginCall call) {
         Log.d(TAG, "[VoiceConnection] setup");
         VoiceConnectionService.setAvailable(false);
         VoiceConnectionService.setInitialized(true);
@@ -150,6 +150,7 @@ public class CapCallKeepPlugin extends Plugin {
             this.registerPhoneAccount();
             this.registerEvents();
             VoiceConnectionService.setAvailable(true);
+            Log.i(TAG, "isEnabled:" + telecomManager.getPhoneAccount(handle).isEnabled());
         } else {
             Log.w(TAG, "connection service not available");
         }
@@ -186,8 +187,20 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void displayIncomingCall(PluginCall call) {
+        if (!call.hasOption("uuid")) {
+            call.reject("missing key 'uuid'");
+            return;
+        }
         String uuid = call.getString("uuid");
+        if (!call.hasOption("number")) {
+            call.reject("missing key 'number'");
+            return;
+        }
         String number = call.getString("number");
+        if (!call.hasOption("callerName")) {
+            call.reject("missing key 'callerName'");
+            return;
+        }
         String callerName = call.getString("callerName");
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
             Log.w(TAG, "[VoiceConnection] displayIncomingCall ignored due to no ConnectionService or no phone account");

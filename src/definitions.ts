@@ -97,8 +97,8 @@ export interface CapCallKeepPlugin {
   // See: https://github1s.com/react-native-webrtc/react-native-callkeep/blob/HEAD/index.js#L73-L74
   displayIncomingCall(o: {
     uuid: string;
-    handle: string;
-    localizedCallerName?: string;
+    number: string;
+    callerName: string;
     handleType?: HandleType;
     hasVideo?: boolean;
     options?: IncomingCallOptions;

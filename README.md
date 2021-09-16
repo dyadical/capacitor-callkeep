@@ -629,12 +629,12 @@ answerIncomingCall(o: { uuid: string; }) => any
 ### displayIncomingCall(...)
 
 ```typescript
-displayIncomingCall(o: { uuid: string; handle: string; localizedCallerName?: string; handleType?: HandleType; hasVideo?: boolean; options?: IncomingCallOptions; }) => any
+displayIncomingCall(o: { uuid: string; number: string; callerName: string; handleType?: HandleType; hasVideo?: boolean; options?: IncomingCallOptions; }) => any
 ```
 
-| Param   | Type                                                                                                                                                                                                              |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`o`** | <code>{ uuid: string; handle: string; localizedCallerName?: string; handleType?: "number" \| "generic" \| "email"; hasVideo?: boolean; options?: <a href="#incomingcalloptions">IncomingCallOptions</a>; }</code> |
+| Param   | Type                                                                                                                                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`o`** | <code>{ uuid: string; number: string; callerName: string; handleType?: "number" \| "generic" \| "email"; hasVideo?: boolean; options?: <a href="#incomingcalloptions">IncomingCallOptions</a>; }</code> |
 
 **Returns:** <code>any</code>
 

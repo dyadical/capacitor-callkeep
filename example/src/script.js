@@ -1,12 +1,23 @@
-import { CapCallKeep } from "capacitor-callkeep"
+import { CapCallKeep } from 'capacitor-callkeep';
 
-CapCallKeep.setup({})
-async function foo() {
-    const result = await CapCallKeep.echo({ value: "bob" })
-    console.log("echo result is:", JSON.stringify(result))
-
-    const callResult = CapCallKeep.displayIncomingCall("sdfsdf", "aaaa",)
-    console.log(JSON.stringify({ callResult }))
-
+function log(x) {
+  console.log(JSON.stringify(x));
 }
-foo()
+
+window.foo = async function foo() {
+  const setupRes = await CapCallKeep.setupAndroid({
+    selfManaged: false,
+    imageName: 'imageNameIdk',
+  });
+  log({ setupRes });
+  const perms = await CapCallKeep.checkPermissions();
+  log({ perms });
+  const echoResult = await CapCallKeep.echo({ value: 'bob' });
+  log({ echoResult });
+  const callResult = CapCallKeep.displayIncomingCall({
+    uuid: '1234',
+    number: '5678',
+    callerName: 'tom johnson',
+  });
+  log({ callResult });
+};
