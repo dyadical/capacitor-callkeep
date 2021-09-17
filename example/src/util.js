@@ -1,8 +1,8 @@
 import { Notyf } from 'notyf';
 
 export const toast = new Notyf();
-toast.success("toasting library works?")
-console.log("GVQE1 test log")
+toast.success('toasting library works?');
+console.log('GVQE1 test log');
 
 export function log(x) {
   const s = JSON.stringify(x);
