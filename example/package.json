@@ -4,7 +4,7 @@
     "start": "webpack watch --mode=development ./src/main.js -o ./www/build/",
     "build": "webpack build --mode=development ./src/main.js -o ./www/build/ && npx cap sync android",
     "buildprod": "webpack build --mode=production ./src/main.js -o ./www/build/ && npx cap sync android",
-    "fmt": "npx prettier --write src/main.js www/index.html"
+    "fmt": "npx prettier --write src/main.js www/index.html README.md"
   },
   "type": "module",
   "dependencies": {
