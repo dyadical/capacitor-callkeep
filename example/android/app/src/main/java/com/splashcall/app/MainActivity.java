@@ -1,4 +1,4 @@
-package com.example.app;
+package com.splashcall.app;
 
 import com.getcapacitor.BridgeActivity;
 

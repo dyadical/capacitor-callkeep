@@ -1,22 +1,5 @@
 package com.dyadical.capcallkeep;
 
-import static com.dyadical.capcallkeep.Constants.ACTION_ANSWER_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_AUDIO_SESSION;
-import static com.dyadical.capcallkeep.Constants.ACTION_CHECK_REACHABILITY;
-import static com.dyadical.capcallkeep.Constants.ACTION_DTMF_TONE;
-import static com.dyadical.capcallkeep.Constants.ACTION_END_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_HOLD_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_MUTE_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_ONGOING_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_ON_SILENCE_INCOMING_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_SHOW_INCOMING_CALL_UI;
-import static com.dyadical.capcallkeep.Constants.ACTION_UNHOLD_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_UNMUTE_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_WAKE_APP;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALLER_NAME;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_NUMBER;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_UUID;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -40,22 +23,43 @@ import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.WindowManager;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.getcapacitor.Bridge;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginHandle;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.dyadical.capcallkeep.Constants.ACTION_ANSWER_CALL;
+import static com.dyadical.capcallkeep.Constants.ACTION_AUDIO_SESSION;
+import static com.dyadical.capcallkeep.Constants.ACTION_CHECK_REACHABILITY;
+import static com.dyadical.capcallkeep.Constants.ACTION_DTMF_TONE;
+import static com.dyadical.capcallkeep.Constants.ACTION_END_CALL;
+import static com.dyadical.capcallkeep.Constants.ACTION_HOLD_CALL;
+import static com.dyadical.capcallkeep.Constants.ACTION_MUTE_CALL;
+import static com.dyadical.capcallkeep.Constants.ACTION_ONGOING_CALL;
+import static com.dyadical.capcallkeep.Constants.ACTION_ON_SILENCE_INCOMING_CALL;
+import static com.dyadical.capcallkeep.Constants.ACTION_SHOW_INCOMING_CALL_UI;
+import static com.dyadical.capcallkeep.Constants.ACTION_UNHOLD_CALL;
+import static com.dyadical.capcallkeep.Constants.ACTION_UNMUTE_CALL;
+import static com.dyadical.capcallkeep.Constants.ACTION_WAKE_APP;
+import static com.dyadical.capcallkeep.Constants.EXTRA_CALLER_NAME;
+import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_NUMBER;
+import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_UUID;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 @CapacitorPlugin(
@@ -87,19 +91,22 @@ public class CapCallKeepPlugin extends Plugin {
     private VoiceBroadcastReceiver voiceBroadcastReceiver;
     private JSObject _settings;
     public static Bridge staticBridge = null;
+    public MessagingService firebaseMessagingService;
 
     @PluginMethod
     public void echo(PluginCall call) {
         String value = call.getString("value");
 
         JSObject ret = new JSObject();
-        ret.put("value", "cool ".concat(value));
+        ret.put("value", "real cool ".concat(value));
         call.resolve(ret);
     }
 
     public void load() {
+        Log.i(TAG, "load()");
         staticBridge = this.bridge;
         // messagingService = new MessagingService();
+//        firebaseMessagingService = new MessagingService(getContext());
     }
 
     // public RNCallKeepModule(ReactApplicationContext reactContext) {
@@ -124,7 +131,7 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void setupAndroid(PluginCall call) {
-        Log.d(TAG, "[VoiceConnection] setup");
+        Log.i(TAG, "[VoiceConnection] setup");
         VoiceConnectionService.setAvailable(false);
         VoiceConnectionService.setInitialized(true);
         this._settings = call.getData();
@@ -187,6 +194,7 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void displayIncomingCall(PluginCall call) {
+        Log.i(TAG, "displayIncomingCall()");
         if (!call.hasOption("uuid")) {
             call.reject("missing key 'uuid'");
             return;
@@ -204,6 +212,7 @@ public class CapCallKeepPlugin extends Plugin {
         String callerName = call.getString("callerName");
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
             Log.w(TAG, "[VoiceConnection] displayIncomingCall ignored due to no ConnectionService or no phone account");
+            call.reject("no ConnectionService or no phone account");
             return;
         }
 
@@ -883,4 +892,16 @@ public class CapCallKeepPlugin extends Plugin {
             }
         }
     }
+
+    public static CapCallKeepPlugin getCCKInstance() {
+        if (staticBridge != null && staticBridge.getWebView() != null) {
+            PluginHandle handle = staticBridge.getPlugin("CapCallKeep");
+            if (handle == null) {
+                return null;
+            }
+            return (CapCallKeepPlugin) handle.getInstance();
+        }
+        return null;
+    }
+
 }
