@@ -1,13 +1,15 @@
 {
   "scripts": {
-    "start": "npx webpack watch --mode=development ./src/script.js -o ./www/build/",
-    "build": "npx webpack build --mode=development ./src/script.js -o ./www/build/ && npx cap sync android",
-    "buildprod": "npx webpack build --mode=production ./src/script.js -o ./www/build/ && npx cap sync android",
-    "fmt": "npx prettier --write src/script.js www/index.html"
+    "start": "webpack watch --mode=development ./src/main.js -o ./www/build/",
+    "build": "webpack build --mode=development ./src/main.js -o ./www/build/ && npx cap sync android",
+    "buildprod": "webpack build --mode=production ./src/main.js -o ./www/build/ && npx cap sync android",
+    "fmt": "npx prettier --write src/main.js www/index.html"
   },
+  "type": "module",
   "dependencies": {
     "@capacitor/android": "^3.2.2",
     "@capacitor/core": "^3.2.2",
+    "@capacitor/push-notifications": "^1.0.4",
     "capacitor-callkeep": "file:../"
   },
   "devDependencies": {

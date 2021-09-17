@@ -124,7 +124,7 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void setupAndroid(PluginCall call) {
-        Log.d(TAG, "[VoiceConnection] setup");
+        Log.i(TAG, "[VoiceConnection] setup");
         VoiceConnectionService.setAvailable(false);
         VoiceConnectionService.setInitialized(true);
         this._settings = call.getData();
@@ -187,6 +187,7 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void displayIncomingCall(PluginCall call) {
+        Log.i(TAG, "displayIncomingCall()");
         if (!call.hasOption("uuid")) {
             call.reject("missing key 'uuid'");
             return;
