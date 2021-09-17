@@ -87,19 +87,22 @@ public class CapCallKeepPlugin extends Plugin {
     private VoiceBroadcastReceiver voiceBroadcastReceiver;
     private JSObject _settings;
     public static Bridge staticBridge = null;
+    public MessagingService firebaseMessagingService;
 
     @PluginMethod
     public void echo(PluginCall call) {
         String value = call.getString("value");
 
         JSObject ret = new JSObject();
-        ret.put("value", "cool ".concat(value));
+        ret.put("value", "real cool ".concat(value));
         call.resolve(ret);
     }
 
     public void load() {
+        Log.i(TAG, "load()");
         staticBridge = this.bridge;
         // messagingService = new MessagingService();
+        firebaseMessagingService = new MessagingService();
     }
 
     // public RNCallKeepModule(ReactApplicationContext reactContext) {
