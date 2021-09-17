@@ -4,14 +4,15 @@
     "start": "webpack watch --mode=development ./src/main.js -o ./www/build/",
     "build": "webpack build --mode=development ./src/main.js -o ./www/build/ && npx cap sync android",
     "buildprod": "webpack build --mode=production ./src/main.js -o ./www/build/ && npx cap sync android",
-    "fmt": "npx prettier --write src/main.js www/index.html README.md"
+    "fmt": "npx prettier --write src/*.js www/index.html README.md"
   },
   "type": "module",
   "dependencies": {
     "@capacitor/android": "^3.2.2",
     "@capacitor/core": "^3.2.2",
     "@capacitor/push-notifications": "^1.0.4",
-    "capacitor-callkeep": "file:../"
+    "capacitor-callkeep": "file:../",
+    "notyf": "^3.10.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^3.2.2",

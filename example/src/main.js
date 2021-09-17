@@ -1,24 +1,20 @@
 import { CapCallKeep } from 'capacitor-callkeep';
 import { addPushListeners } from './push.js';
-addPushListeners();
-function log(x) {
-  console.log(JSON.stringify(x));
-}
-function error(x) {
-  console.error(JSON.stringify(x));
-}
+import { attempt } from './util.js';
 
-window.foo = async function foo() {
-  await tc(
+addPushListeners();
+
+window.callStuff = async function callStuff() {
+  await attempt(
     CapCallKeep.setupAndroid({
       selfManaged: false,
       imageName: 'imageNameIdk',
     }),
     'setupAndroid',
   );
-  await tc(CapCallKeep.checkPermissions(), 'checkPermissions');
-  await tc(CapCallKeep.echo({ value: 'bob' }), 'echo');
-  await tc(
+  await attempt(CapCallKeep.checkPermissions(), 'checkPermissions');
+  await attempt(CapCallKeep.echo({ value: 'bob' }), 'echo');
+  await attempt(
     CapCallKeep.displayIncomingCall({
       uuid: '1234',
       number: '5678',
@@ -27,14 +23,3 @@ window.foo = async function foo() {
     'displayIncomingCall',
   );
 };
-
-async function tc(func, name) {
-  try {
-    const res = await func();
-    console.log(name, ':', JSON.stringify(res));
-    return res;
-  } catch (e) {
-    console.error(name, ':', JSON.stringify(e));
-    return e;
-  }
-}
