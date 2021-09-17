@@ -205,6 +205,7 @@ public class CapCallKeepPlugin extends Plugin {
         String callerName = call.getString("callerName");
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
             Log.w(TAG, "[VoiceConnection] displayIncomingCall ignored due to no ConnectionService or no phone account");
+            call.reject("no ConnectionService or no phone account");
             return;
         }
 

@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "sync": "cap sync android",
     "start": "webpack watch --mode=development ./src/main.js -o ./www/build/",
     "build": "webpack build --mode=development ./src/main.js -o ./www/build/ && npx cap sync android",
     "buildprod": "webpack build --mode=production ./src/main.js -o ./www/build/ && npx cap sync android",
