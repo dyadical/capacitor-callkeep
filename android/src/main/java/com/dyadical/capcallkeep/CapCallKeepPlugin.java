@@ -49,10 +49,12 @@ import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginHandle;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import com.google.firebase.messaging.RemoteMessage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +89,6 @@ public class CapCallKeepPlugin extends Plugin {
     private VoiceBroadcastReceiver voiceBroadcastReceiver;
     private JSObject _settings;
     public static Bridge staticBridge = null;
-    public MessagingService firebaseMessagingService;
 
     @PluginMethod
     public void echo(PluginCall call) {
@@ -102,7 +103,6 @@ public class CapCallKeepPlugin extends Plugin {
         Log.i(TAG, "load()");
         staticBridge = this.bridge;
         // messagingService = new MessagingService();
-        firebaseMessagingService = new MessagingService();
     }
 
     // public RNCallKeepModule(ReactApplicationContext reactContext) {
@@ -887,5 +887,34 @@ public class CapCallKeepPlugin extends Plugin {
                     break;
             }
         }
+    }
+
+    public static void sendRemoteMessage(RemoteMessage remoteMessage) {
+        CapCallKeepPlugin cckPlugin = CapCallKeepPlugin.getCapCallKeepInstance();
+        if (cckPlugin != null) {
+            Log.i(TAG, "received remote message" + remoteMessage.toString());
+        } else {
+            Log.e(TAG, "received remote message but no  " + remoteMessage.toString());
+        }
+    }
+
+    public static void onNewToken(String newToken) {
+        CapCallKeepPlugin cckPlugin = CapCallKeepPlugin.getCapCallKeepInstance();
+        if (cckPlugin != null) {
+            Log.i(TAG, "onNewToken received");
+        } else {
+            Log.e(TAG, "onNewToken but no plugin instance");
+        }
+    }
+
+    public static CapCallKeepPlugin getCapCallKeepInstance() {
+        if (staticBridge != null && staticBridge.getWebView() != null) {
+            PluginHandle handle = staticBridge.getPlugin("CapCallKeep");
+            if (handle == null) {
+                return null;
+            }
+            return (CapCallKeepPlugin) handle.getInstance();
+        }
+        return null;
     }
 }
