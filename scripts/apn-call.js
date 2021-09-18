@@ -1,28 +1,20 @@
 const admin = require('firebase-admin');
+const { registrationToken, firebaseConfig } = require('./firebase-config.js');
 
-// TODO: pull out into .firebaserc
-var firebaseConfig = {
-  credential: admin.credential.applicationDefault(),
-  authDomain: 'TODO',
-  databaseURL: 'TODO',
-  projectId: 'TODO',
-  messagingSenderId: 'TODO',
-  appId: 'TODO',
-  // measurementId: "TODO",
-};
-
+console.log({ firebaseConfig });
 admin.initializeApp(firebaseConfig);
 
 // This registration token comes from the client FCM SDKs.
-const registrationToken = 'TODO';
 
 const message = {
-  notification: {
+  // NOTE: 'data' goes through to app but 'notification' does not
+  // See https://stackoverflow.com/a/38795553/4941530
+  data: {
     title: 'hello world',
-    body: new Date().toLocaleString(),
+    body: 'have a good day',
+    type: 'ring', // our app will check this value
   },
   token: registrationToken,
-  // topic: "callattempt.voip",
 };
 
 // Send a message to the device corresponding to the provided

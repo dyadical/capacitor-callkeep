@@ -17,6 +17,9 @@ Android:
    - console logs are in the `Run` tab at the bottom of android studio
 8. Test a notification in firebase cloud messaging console using **FCM token** from logs
    - **note**: Android/Google uses FCM tokens and Apple/iOS uses APN tokens, because FCM tokens can't do VoIP on iOS right now.
+9. In your .bashrc or .zshrc add this line:\
+   `export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/myapp-firebase-adminsdk-somenumbers.json`\
+   You'll need to download that from firebase console.
 
 iOS:
 

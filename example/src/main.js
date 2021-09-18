@@ -4,11 +4,18 @@ import { attempt } from './util.js';
 
 addPushListeners();
 
-attempt(
-  () =>
-    CapCallKeep.setupAndroid({ selfManaged: false, imageName: 'imageNameIdk' }),
-  'setupAndroid',
-);
+async function start() {
+  await attempt(
+    () =>
+      CapCallKeep.setupAndroid({
+        selfManaged: false,
+        imageName: 'imageNameIdk',
+      }),
+    'setupAndroid',
+  );
+  await attempt(() => CapCallKeep.requestPermissions(), 'requestPermissions');
+}
+start();
 
 window.callStuff = async function callStuff() {
   await attempt(() => CapCallKeep.checkPermissions(), 'checkPermissions');
@@ -23,3 +30,5 @@ window.callStuff = async function callStuff() {
     'displayIncomingCall',
   );
 };
+
+// setInterval(() => { console.log('logging alive as of ' + new Date().toLocaleTimeString()); }, 2000);
