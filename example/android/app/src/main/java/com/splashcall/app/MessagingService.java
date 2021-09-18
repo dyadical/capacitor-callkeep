@@ -19,7 +19,13 @@ public class MessagingService extends FirebaseMessagingService {
         Log.i(TAG, "onMessageReceived()");
         super.onMessageReceived(remoteMessage);
         PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
-        CapCallKeepPlugin.sendRemoteMessage(remoteMessage);
+        CapCallKeepPlugin cckp = CapCallKeepPlugin.getCapCallKeepInstance();
+        if (cckp != null) {
+            Log.i(TAG, "gonna try to display it");
+            cckp.doDisplayIncomingCall("aaaa", "12345", "Wes");
+        } else {
+            Log.e(TAG, "no CapCallKeepPlugin instance found");
+        }
     }
 
     @Override

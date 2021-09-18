@@ -206,14 +206,23 @@ public class CapCallKeepPlugin extends Plugin {
             return;
         }
         String callerName = call.getString("callerName");
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
-            Log.w(TAG, "[VoiceConnection] displayIncomingCall ignored due to no ConnectionService or no phone account");
+
+        Boolean succeeded = doDisplayIncomingCall(uuid, number, callerName);
+        if (!succeeded) {
             call.reject("no ConnectionService or no phone account");
             return;
         }
+        doDisplayIncomingCall(uuid, number, callerName);
+        call.resolve();
+    }
 
-        Log.d(TAG, "[VoiceConnection] displayIncomingCall, uuid: " + uuid + ", number: " + number + ", callerName: " + callerName);
-
+    public Boolean doDisplayIncomingCall(String uuid, String number, String callerName) {
+        Log.i(TAG, "displayIncomingCall()");
+        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
+            Log.w(TAG, "doDisplayIncomingCall ignored due to no ConnectionService or no phone account");
+            Boolean succeeded = false;
+            return succeeded;
+        }
         Bundle extras = new Bundle();
         Uri uri = Uri.fromParts(PhoneAccount.SCHEME_TEL, number, null);
 
@@ -222,7 +231,8 @@ public class CapCallKeepPlugin extends Plugin {
         extras.putString(EXTRA_CALL_UUID, uuid);
 
         telecomManager.addNewIncomingCall(handle, extras);
-        call.resolve();
+        Boolean succeeded = true;
+        return succeeded;
     }
 
     @PluginMethod
