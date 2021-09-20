@@ -11,7 +11,7 @@
         "commands": [
             {
                 "match": "example/src/.*\\.js$|example/www/index.html$",
-                "cmd": "cd example && npm run build",
+                "cmd": "cd example && npm run prett -- ${file} && npm run build",
             },
         ]
     },    

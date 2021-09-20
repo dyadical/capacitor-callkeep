@@ -4,7 +4,8 @@
     "start": "webpack watch --mode=development ./src/main.js -o ./www/build/",
     "build": "webpack build --mode=development ./src/main.js -o ./www/build/ && cap sync android",
     "buildprod": "webpack build --mode=production ./src/main.js -o ./www/build/ && cap sync android",
-    "fmt": "prettier --write src/*.js www/index.html README.md android/app/src/main/java/com/splashcall/app/*.java"
+    "fmt": "prettier --write src/*.js www/index.html README.md android/app/src/main/java/com/splashcall/app/*.java",
+    "prett": "prettier --write"
   },
   "type": "module",
   "dependencies": {
