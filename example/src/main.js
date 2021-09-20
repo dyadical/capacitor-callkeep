@@ -10,6 +10,12 @@ async function start() {
       CapCallKeep.setupAndroid({
         selfManaged: false,
         imageName: 'imageNameIdk',
+        foregroundService: {
+          channelId: 'hmm',
+          channelName: 'whatisthis',
+          notificationTitle: 'titlehereidk',
+          // notificationIcon: "doesnotexist.png",
+        },
       }),
     'setupAndroid',
   );
