@@ -4,6 +4,8 @@ import android.os.Build;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin;
 import com.dyadical.capcallkeep.CapCallKeepPlugin;
 import com.getcapacitor.JSObject;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -45,7 +47,7 @@ public class MessagingService extends FirebaseMessagingService {
             }
         } else {
             Log.d(TAG, "forwarding notification to @capacitor/push-notifications");
-            //            PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
+            PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
         }
     }
 }

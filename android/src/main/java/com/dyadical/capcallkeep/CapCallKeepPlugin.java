@@ -54,7 +54,6 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
-import com.google.firebase.messaging.RemoteMessage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -898,24 +897,6 @@ public class CapCallKeepPlugin extends Plugin {
                     notifyListeners("silenceIncomingCall", args);
                     break;
             }
-        }
-    }
-
-    public static void sendRemoteMessage(RemoteMessage remoteMessage) {
-        CapCallKeepPlugin cckPlugin = CapCallKeepPlugin.getCapCallKeepInstance();
-        if (cckPlugin != null) {
-            Log.d(TAG, "received remote message" + remoteMessage.toString());
-        } else {
-            Log.e(TAG, "received remote message but no  " + remoteMessage.toString());
-        }
-    }
-
-    public static void onNewToken(String newToken) {
-        CapCallKeepPlugin cckPlugin = CapCallKeepPlugin.getCapCallKeepInstance();
-        if (cckPlugin != null) {
-            Log.d(TAG, "onNewToken received");
-        } else {
-            Log.e(TAG, "onNewToken but no plugin instance");
         }
     }
 
