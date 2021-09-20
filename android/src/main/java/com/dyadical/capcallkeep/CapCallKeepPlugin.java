@@ -147,7 +147,7 @@ public class CapCallKeepPlugin extends Plugin {
 
         if (isConnectionServiceAvailable()) {
             Log.i(TAG, "registering phone account");
-            this.registerPhoneAccounut(context);
+            this.registerPhoneAccount(context);
             this.registerEvents(context);
             VoiceConnectionService.setAvailable(true);
             Log.i(TAG, "isEnabled:" + telecomManager.getPhoneAccount(handle).isEnabled());
@@ -716,7 +716,7 @@ public class CapCallKeepPlugin extends Plugin {
         telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
     }
 
-    public void registerPhoneAccounut(Context appContext) {
+    public void registerPhoneAccount(Context appContext) {
         if (!isConnectionServiceAvailable()) {
             Log.w(TAG, "doRegisterPhoneAccount ignored due to no ConnectionService");
             return;
