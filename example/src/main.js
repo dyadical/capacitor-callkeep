@@ -244,7 +244,8 @@ const buttonFunctions = [
 
 const buttonsDiv = document.getElementById('buttons');
 function makeButtons() {
-  for (const f of buttonFunctions) {
+  const sorted = [...buttonFunctions].sort();
+  for (const f of sorted) {
     const button = document.createElement('button');
     button.innerText = f.name;
     button.onclick = f;
