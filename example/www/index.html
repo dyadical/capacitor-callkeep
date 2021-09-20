@@ -13,5 +13,68 @@
     <h1>Hello world</h1>
     <script src="build/main.js"></script>
     <button onclick="callStuff()">callStuff()</button>
+    <div id="buttons"></div>
+
+    <!-- 
+        await attempt(() => CapCallKeep.checkPermissions(), 'checkPermissions');
+  await attempt(
+    () =>
+      CapCallKeep.displayIncomingCall({
+        uuid: '1234',
+        number: '5678',
+        callerName: 'tom johnson',
+      }),
+    'displayIncomingCall',
+  );
+
+  // setupAndroid(options: AndroidOptions): PV;
+    // supportConnectionService(): PB;
+    // registerPhoneAccount(): PV;
+    // hasPhoneAccount(): PB;
+    // hasDefaultPhoneAccount(): PB;
+    // checkPhoneAccountEnabled(): PB;
+    // toggleAudioRouteSpeaker(o: { uuid: string; routeSpeaker: boolean }): PV;
+    // setAvailable(o: { active: boolean }): PV;
+    // registerAndroidEvents(): PV;
+    // isConnectionServiceAvailable(): PB;
+    // rejectCall(o: { uuid: string }): PV;
+    // hasOutgoingCall(): PB;
+    // setForegroundServiceSettings(o: { settings: Obj }): PV;
+    // canMakeMultipleCalls(o: { allow: boolean }): PV;
+    // setCurrentCallActive(o: { callUUID: string }): PV;
+    // backToForeground(): PV;
+    // answerIncomingCall(o: { uuid: string }): PV;
+    // // TODO: different args for below three functions between ios and android
+    // // See: https://github1s.com/react-native-webrtc/react-native-callkeep/blob/HEAD/index.js#L73-L74
+    // displayIncomingCall(o: {
+    //   uuid: string;
+    //   number: string;
+    //   callerName: string;
+    //   handleType?: HandleType;
+    //   hasVideo?: boolean;
+    //   options?: IncomingCallOptions;
+    // }): PV;
+    // startCall(o: {
+    //   uuid: string;
+    //   handle: string;
+    //   contactIdentifier?: string;
+    //   handleType?: HandleType;
+    //   hasVideo?: boolean;
+    // }): PV;
+    // updateDisplay(o: {
+    //   uuid: string;
+    //   displayName: string;
+    //   handle: string;
+    //   options?: IncomingCallOptions;
+    // }): PV;
+    // reportEndCallWithUUID(o: { uuid: string; reason: number }): PV;
+    // endCall(o: { uuid: string }): PV;
+    // endAllCalls(): PV;
+    // setReachable(): PV;
+    // getAudioRoutes(): PV;
+    // setAudioRoute(o: { uuid: string; inputName: string }): PV;
+    // setOnHold(o: { uuid: string; held: boolean }): PV;
+    // /** sendDTMF is used to send DTMF tones to the PBX. */
+    // sendDTMF(o: { uuid: string; key: string }): PV; -->
   </body>
 </html>

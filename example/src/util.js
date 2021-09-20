@@ -4,11 +4,12 @@ export const toast = new Notyf();
 toast.success('toasting library works?');
 console.log('GVQE1 test log');
 
-export function log(x) {
+export function log(x, prefix = '') {
   const s = JSON.stringify(x);
-  toast.success(s);
-  console.log(s);
+  toast.success(prefix + s);
+  console.log(prefix + s);
 }
+
 export function error(x) {
   const s = JSON.stringify(x);
   toast.error(s);

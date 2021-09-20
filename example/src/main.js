@@ -1,10 +1,13 @@
 import { CapCallKeep } from 'capacitor-callkeep';
 import { addPushListeners } from './push.js';
-import { attempt } from './util.js';
+import { attempt, log } from './util.js';
 
 addPushListeners();
 
-async function start() {
+window.attempt = attempt;
+window.CCK = CapCallKeep;
+
+async function setup() {
   await attempt(
     () =>
       CapCallKeep.setupAndroid({
@@ -21,19 +24,25 @@ async function start() {
   );
   await attempt(() => CapCallKeep.requestPermissions(), 'requestPermissions');
 }
-start();
+setup();
 
-window.callStuff = async function callStuff() {
-  await attempt(() => CapCallKeep.checkPermissions(), 'checkPermissions');
-  await attempt(
-    () =>
-      CapCallKeep.displayIncomingCall({
-        uuid: '1234',
-        number: '5678',
-        callerName: 'tom johnson',
-      }),
-    'displayIncomingCall',
-  );
-};
-
-// setInterval(() => { console.log('logging alive as of ' + new Date().toLocaleTimeString()); }, 2000);
+function addCapCallKeepListeners() {
+  const events = [
+    'endCall',
+    'answerCall',
+    'toggleHold',
+    'setMutedCall',
+    'DTMFAction',
+    'startCall',
+    'activateAudioSession',
+    'checkReachability',
+    'showIncomingCallUi',
+    'silenceIncomingCall',
+  ];
+  for (const event of events) {
+    CapCallKeep.addListener(event, data =>
+      log(data, `Event ${event} received `),
+    );
+  }
+}
+addCapCallKeepListeners();
