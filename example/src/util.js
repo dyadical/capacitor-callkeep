@@ -11,9 +11,13 @@ export function log(x, prefix = '') {
 }
 
 export function error(x) {
-  const s = JSON.stringify(x);
+  const s = errToString(x);
   toast.error(s);
   console.error(s);
+}
+
+function errToString(err) {
+  return JSON.stringify(err, Object.getOwnPropertyNames(err));
 }
 
 export async function attempt(func, name = null) {
@@ -27,7 +31,7 @@ export async function attempt(func, name = null) {
     toast.success(message);
     return res;
   } catch (e) {
-    const message = `${name} ERROR :${JSON.stringify(e)}`;
+    const message = `${name} ERROR: ${errToString(e)}`;
     console.error(message);
     toast.error(message);
     return e;
