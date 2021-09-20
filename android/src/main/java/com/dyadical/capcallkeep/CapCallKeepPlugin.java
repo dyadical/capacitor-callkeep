@@ -91,7 +91,7 @@ public class CapCallKeepPlugin extends Plugin {
     public static Bridge staticBridge = null;
 
     public void load() {
-        Log.i(TAG, "load()");
+        Log.d(TAG, "load()");
         staticBridge = this.bridge;
         // messagingService = new MessagingService();
     }
@@ -118,7 +118,7 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void setupAndroid(PluginCall call) {
-        Log.i(TAG, "[VoiceConnection] setup");
+        Log.d(TAG, "[VoiceConnection] setup");
         JSObject data = call.getData();
         setupAndroid(data, getContext().getApplicationContext());
         call.resolve();
@@ -150,7 +150,7 @@ public class CapCallKeepPlugin extends Plugin {
             this.registerPhoneAccount(context);
             this.registerEvents(context);
             VoiceConnectionService.setAvailable(true);
-            Log.i(TAG, "isEnabled:" + telecomManager.getPhoneAccount(handle).isEnabled());
+            Log.d(TAG, "isEnabled:" + telecomManager.getPhoneAccount(handle).isEnabled());
         } else {
             Log.w(TAG, "connection service not available");
         }
@@ -190,7 +190,7 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void displayIncomingCall(PluginCall call) {
-        Log.i(TAG, "displayIncomingCall()");
+        Log.d(TAG, "displayIncomingCall()");
         if (!call.hasOption("uuid")) {
             call.reject("missing key 'uuid'");
             return;
@@ -900,7 +900,7 @@ public class CapCallKeepPlugin extends Plugin {
     public static void sendRemoteMessage(RemoteMessage remoteMessage) {
         CapCallKeepPlugin cckPlugin = CapCallKeepPlugin.getCapCallKeepInstance();
         if (cckPlugin != null) {
-            Log.i(TAG, "received remote message" + remoteMessage.toString());
+            Log.d(TAG, "received remote message" + remoteMessage.toString());
         } else {
             Log.e(TAG, "received remote message but no  " + remoteMessage.toString());
         }
@@ -909,7 +909,7 @@ public class CapCallKeepPlugin extends Plugin {
     public static void onNewToken(String newToken) {
         CapCallKeepPlugin cckPlugin = CapCallKeepPlugin.getCapCallKeepInstance();
         if (cckPlugin != null) {
-            Log.i(TAG, "onNewToken received");
+            Log.d(TAG, "onNewToken received");
         } else {
             Log.e(TAG, "onNewToken but no plugin instance");
         }
