@@ -1,14 +1,18 @@
 {
   "scripts": {
-    "start": "npx webpack watch --mode=development ./src/script.js -o ./www/build/",
-    "build": "npx webpack build --mode=development ./src/script.js -o ./www/build/ && npx cap sync android",
-    "buildprod": "npx webpack build --mode=production ./src/script.js -o ./www/build/ && npx cap sync android",
-    "fmt": "npx prettier --write src/script.js www/index.html"
+    "sync": "cap sync android",
+    "start": "webpack watch --mode=development ./src/main.js -o ./www/build/",
+    "build": "webpack build --mode=development ./src/main.js -o ./www/build/ && cap sync android",
+    "buildprod": "webpack build --mode=production ./src/main.js -o ./www/build/ && cap sync android",
+    "fmt": "prettier --write src/*.js www/index.html README.md android/app/src/main/java/com/splashcall/app/*.java"
   },
+  "type": "module",
   "dependencies": {
     "@capacitor/android": "^3.2.2",
     "@capacitor/core": "^3.2.2",
-    "capacitor-callkeep": "file:../"
+    "@capacitor/push-notifications": "^1.0.4",
+    "capacitor-callkeep": "file:../",
+    "notyf": "^3.10.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^3.2.2",

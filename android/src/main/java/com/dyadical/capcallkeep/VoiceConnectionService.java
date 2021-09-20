@@ -88,7 +88,7 @@ public class VoiceConnectionService extends ConnectionService {
 
     public VoiceConnectionService() {
         super();
-        Log.e(TAG, "[VoiceConnectionService] Constructor");
+        Log.d(TAG, "[VoiceConnectionService] Constructor");
         currentConnectionRequest = null;
         currentConnectionService = this;
     }

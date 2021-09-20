@@ -1,5 +1,7 @@
 # capacitor-callkeep
 
+There is a working example app in the /example folder with its own [README](example/README.md) file. That is a great place to start if you consider using this plugin.
+
 Capacitor port of react-native callkeep. iOS CallKit framework and Android ConnectionService for Capacitor. VoIP, FCM tokens, APNS tokens.
 
 We're aiming to publish to npm by roughly September 23, 2021.
@@ -26,7 +28,6 @@ npx cap sync
 * [`addListener(...)`](#addlistener)
 * [`addListener(...)`](#addlistener)
 * [`addListener(...)`](#addlistener)
-* [`echo(...)`](#echo)
 * [`setupAndroid(...)`](#setupandroid)
 * [`supportConnectionService()`](#supportconnectionservice)
 * [`registerPhoneAccount()`](#registerphoneaccount)
@@ -245,21 +246,6 @@ iOS only
 | ---------- | ----------------------------------------------- |
 | **`type`** | <code>"registration"</code>                     |
 | **`l`**    | <code>(t: { token: string; }) =&gt; void</code> |
-
-**Returns:** <code>any</code>
-
---------------------
-
-
-### echo(...)
-
-```typescript
-echo(options: { value: string; }) => any
-```
-
-| Param         | Type                            |
-| ------------- | ------------------------------- |
-| **`options`** | <code>{ value: string; }</code> |
 
 **Returns:** <code>any</code>
 

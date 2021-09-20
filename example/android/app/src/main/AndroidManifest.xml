@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.app">
+<!-- Example app manifest -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.splashcall.app">
 
     <application android:allowBackup="true" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/AppTheme">
 
@@ -9,8 +10,13 @@
             </intent-filter>
         </service>
 
+        <service android:name="com.splashcall.app.MessagingService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
-        <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode" android:name="com.example.app.MainActivity" android:label="@string/title_activity_main" android:theme="@style/AppTheme.NoActionBarLaunch" android:launchMode="singleTask">
+        <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode" android:name="com.splashcall.app.MainActivity" android:label="@string/title_activity_main" android:theme="@style/AppTheme.NoActionBarLaunch" android:launchMode="singleTask">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +33,6 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- calling stuff: -->
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
@@ -37,11 +42,13 @@
 	intent action. The maxSdkVersion attribute is needed only if your
 	calling app uses the getLine1Number() or getMsisdn() methods.
 	-->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" android:maxSdkVersion="29" />
+    <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE" android:maxSdkVersion="29" /> -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!--
 	Needed only if your calling app uses the getLine1Number() or
 	getMsisdn() methods.
 	-->
     <uses-permission android:name="android.permissions.READ_PHONE_NUMBERS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 </manifest>

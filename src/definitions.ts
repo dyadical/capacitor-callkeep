@@ -56,7 +56,6 @@ export interface CapCallKeepPlugin {
   // }
 
   // export interface AndroidOnly {
-  echo(options: { value: string }): Promise<{ value: string }>;
   setupAndroid(options: AndroidOptions): PV;
   supportConnectionService(): PB;
   registerPhoneAccount(): PV;

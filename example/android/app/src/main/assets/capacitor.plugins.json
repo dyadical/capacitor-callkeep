@@ -1,5 +1,9 @@
 [
 	{
+		"pkg": "@capacitor/push-notifications",
+		"classpath": "com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin"
+	},
+	{
 		"pkg": "capacitor-callkeep",
 		"classpath": "com.dyadical.capcallkeep.CapCallKeepPlugin"
 	}
