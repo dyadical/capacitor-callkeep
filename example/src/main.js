@@ -76,6 +76,9 @@ function addCapCallKeepListeners() {
 addCapCallKeepListeners();
 
 const buttonFunctions = [
+  function invalid_displayIncomingCall() {
+    attempt(() => cck.displayIncomingCall({}), 'invalid_displayIncomingCall');
+  },
   function checkPermissions() {
     attempt(() => cck.checkPermissions(), 'checkPermissions');
   },

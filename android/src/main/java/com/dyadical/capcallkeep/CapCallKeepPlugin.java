@@ -171,8 +171,9 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void registerEvents() {
+    public void registerEvents(PluginCall call) {
         registerEvents(getContext());
+        call.resolve();
     }
 
     public void registerEvents(Context context) {
@@ -194,20 +195,11 @@ public class CapCallKeepPlugin extends Plugin {
     @PluginMethod
     public void displayIncomingCall(PluginCall call) {
         Log.d(TAG, "displayIncomingCall()");
-        if (!call.hasOption("uuid")) {
-            call.reject("missing key 'uuid'");
+        if (!validate(call, new String[] { "uuid", "number", "callerName" })) {
             return;
         }
         String uuid = call.getString("uuid");
-        if (!call.hasOption("number")) {
-            call.reject("missing key 'number'");
-            return;
-        }
         String number = call.getString("number");
-        if (!call.hasOption("callerName")) {
-            call.reject("missing key 'callerName'");
-            return;
-        }
         String callerName = call.getString("callerName");
 
         Boolean succeeded = displayIncomingCall(uuid, number, callerName);
@@ -258,8 +250,11 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void startCall(PluginCall call) {
+        if (!validate(call, new String[] { "uuid", "handle" })) {
+            return;
+        }
         String uuid = call.getString("uuid");
-        String number = call.getString("number");
+        String number = call.getString("handle");
         String callerName = call.getString("callerName");
         Log.d(TAG, "[VoiceConnection] startCall called, uuid: " + uuid + ", number: " + number + ", callerName: " + callerName);
 
@@ -282,7 +277,9 @@ public class CapCallKeepPlugin extends Plugin {
         Uri uri = Uri.fromParts(PhoneAccount.SCHEME_TEL, number, null);
 
         Bundle callExtras = new Bundle();
-        callExtras.putString(EXTRA_CALLER_NAME, callerName);
+        if (callerName != null) {
+            callExtras.putString(EXTRA_CALLER_NAME, callerName);
+        }
         callExtras.putString(EXTRA_CALL_UUID, uuid);
         callExtras.putString(EXTRA_CALL_NUMBER, number);
 
@@ -300,6 +297,9 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void endCall(PluginCall call) {
+        if (!validate(call, new String[] { "uuid" })) {
+            return;
+        }
         String uuid = call.getString("uuid");
         Log.d(TAG, "[VoiceConnection] endCall called, uuid: " + uuid);
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
@@ -319,7 +319,7 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void endAllCalls() {
+    public void endAllCalls(PluginCall call) {
         Log.d(TAG, "[VoiceConnection] endAllCalls called");
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
             Log.w(TAG, "[VoiceConnection] endAllCalls ignored due to no ConnectionService or no phone account");
@@ -333,6 +333,7 @@ public class CapCallKeepPlugin extends Plugin {
         }
 
         Log.d(TAG, "[VoiceConnection] endAllCalls executed");
+        call.resolve();
     }
 
     @PermissionCallback
@@ -383,7 +384,12 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void setOnHold(String uuid, boolean shouldHold) { // TODO
+    public void setOnHold(PluginCall call) {
+        if (!validate(call, new String[] { "uuid", "shouldHold" })) {
+            return;
+        }
+        String uuid = call.getString("uuid");
+        Boolean shouldHold = call.getBoolean("shouldHold");
         Log.d(TAG, "[VoiceConnection] setOnHold, uuid: " + uuid + ", shouldHold: " + (shouldHold ? "true" : "false"));
 
         Connection conn = VoiceConnectionService.getConnection(uuid);
@@ -397,10 +403,16 @@ public class CapCallKeepPlugin extends Plugin {
         } else {
             conn.onUnhold();
         }
+        call.resolve();
     }
 
     @PluginMethod
-    public void reportEndCallWithUUID(String uuid, int reason) {
+    public void reportEndCallWithUUID(PluginCall call) {
+        if (!validate(call, new String[] { "uuid", "reason" })) {
+            return;
+        }
+        String uuid = call.getString("uuid");
+        int reason = call.getInt("reason");
         Log.d(TAG, "[VoiceConnection] reportEndCallWithUUID, uuid: " + uuid + ", reason: " + reason);
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
             return;
@@ -412,10 +424,14 @@ public class CapCallKeepPlugin extends Plugin {
             return;
         }
         conn.reportDisconnect(reason);
+        call.resolve();
     }
 
     @PluginMethod
     public void rejectCall(PluginCall call) {
+        if (!validate(call, new String[] { "uuid" })) {
+            return;
+        }
         String uuid = call.getString("uuid");
         Log.d(TAG, "[VoiceConnection] rejectCall, uuid: " + uuid);
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
@@ -434,7 +450,12 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void setMutedCall(String uuid, boolean shouldMute) {
+    public void setMutedCall(PluginCall call) {
+        if (!validate(call, new String[] { "uuid", "shouldMute" })) {
+            return;
+        }
+        String uuid = call.getString("uuid");
+        Boolean shouldMute = call.getBoolean("shouldMute");
         Log.d(TAG, "[VoiceConnection] setMutedCall, uuid: " + uuid + ", shouldMute: " + (shouldMute ? "true" : "false"));
         Connection conn = VoiceConnectionService.getConnection(uuid);
         if (conn == null) {
@@ -451,6 +472,7 @@ public class CapCallKeepPlugin extends Plugin {
                 new CallAudioState(false, conn.getCallAudioState().getRoute(), conn.getCallAudioState().getSupportedRouteMask());
         }
         conn.onCallAudioStateChanged(newAudioState);
+        call.resolve();
     }
 
     /**
@@ -460,7 +482,12 @@ public class CapCallKeepPlugin extends Plugin {
      * @param routeSpeaker
      */
     @PluginMethod
-    public void toggleAudioRouteSpeaker(String uuid, boolean routeSpeaker) {
+    public void toggleAudioRouteSpeaker(PluginCall call) {
+        if (!validate(call, new String[] { "uuid", "routeSpeaker" })) {
+            return;
+        }
+        String uuid = call.getString("uuid");
+        Boolean routeSpeaker = call.getBoolean("routeSpeaker");
         Log.d(TAG, "[VoiceConnection] toggleAudioRouteSpeaker, uuid: " + uuid + ", routeSpeaker: " + (routeSpeaker ? "true" : "false"));
         VoiceConnection conn = (VoiceConnection) VoiceConnectionService.getConnection(uuid);
         if (conn == null) {
@@ -472,10 +499,14 @@ public class CapCallKeepPlugin extends Plugin {
         } else {
             conn.setAudioRoute(CallAudioState.ROUTE_EARPIECE);
         }
+        call.resolve();
     }
 
     @PluginMethod
     public void setAudioRoute(PluginCall call) {
+        if (!validate(call, new String[] { "uuid", "audioRoute" })) {
+            return;
+        }
         String uuid = call.getString("uuid");
         String audioRoute = call.getString("audioRoute");
         try {
@@ -553,7 +584,12 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void sendDTMF(String uuid, String key) {
+    public void sendDTMF(PluginCall call) {
+        if (!validate(call, new String[] { "uuid", "key" })) {
+            return;
+        }
+        String uuid = call.getString("uuid");
+        String key = call.getString("key");
         Log.d(TAG, "[VoiceConnection] sendDTMF, uuid: " + uuid + ", key: " + key);
         Connection conn = VoiceConnectionService.getConnection(uuid);
         if (conn == null) {
@@ -562,10 +598,17 @@ public class CapCallKeepPlugin extends Plugin {
         }
         char dtmf = key.charAt(0);
         conn.onPlayDtmfTone(dtmf);
+        call.resolve();
     }
 
     @PluginMethod
-    public void updateDisplay(String uuid, String displayName, String uri) {
+    public void updateDisplay(PluginCall call) {
+        if (!validate(call, new String[] { "uuid", "displayName", "handle" })) {
+            return;
+        }
+        String uuid = call.getString("uuid");
+        String displayName = call.getString("displayName");
+        String uri = call.getString("handle");
         Log.d(TAG, "[VoiceConnection] updateDisplay, uuid: " + uuid + ", displayName: " + displayName + ", uri: " + uri);
         Connection conn = VoiceConnectionService.getConnection(uuid);
         if (conn == null) {
@@ -575,6 +618,7 @@ public class CapCallKeepPlugin extends Plugin {
 
         conn.setAddress(Uri.parse(uri), TelecomManager.PRESENTATION_ALLOWED);
         conn.setCallerDisplayName(displayName, TelecomManager.PRESENTATION_ALLOWED);
+        call.resolve();
     }
 
     @PluginMethod
@@ -603,27 +647,43 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void setAvailable(Boolean active) {
+    public void setAvailable(PluginCall call) {
+        if (!validate(call, new String[] { "active" })) {
+            return;
+        }
+        Boolean active = call.getBoolean("active");
         VoiceConnectionService.setAvailable(active);
+        call.resolve();
     }
 
     @PluginMethod
-    public void setForegroundServiceSettings(JSObject settings) {
+    public void setForegroundServiceSettings(PluginCall call) {
+        JSObject settings = call.getData();
         VoiceConnectionService.setSettings(settings);
+        call.resolve();
     }
 
     @PluginMethod
-    public void canMakeMultipleCalls(Boolean allow) {
+    public void canMakeMultipleCalls(PluginCall call) {
+        if (!validate(call, new String[] { "allow" })) {
+            return;
+        }
+        Boolean allow = call.getBoolean("allow");
         VoiceConnectionService.setCanMakeMultipleCalls(allow);
+        call.resolve();
     }
 
     @PluginMethod
-    public void setReachable() {
+    public void setReachable(PluginCall call) {
         VoiceConnectionService.setReachable();
+        call.resolve();
     }
 
     @PluginMethod
     public void setCurrentCallActive(PluginCall call) {
+        if (!validate(call, new String[] { "uuid" })) {
+            return;
+        }
         String uuid = call.getString("uuid");
         Log.d(TAG, "[VoiceConnection] setCurrentCallActive, uuid: " + uuid);
         Connection conn = VoiceConnectionService.getConnection(uuid);
@@ -638,7 +698,7 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void openPhoneAccounts() {
+    public void openPhoneAccounts(PluginCall call) {
         Log.d(TAG, "[VoiceConnection] openPhoneAccounts");
         if (!isConnectionServiceAvailable()) {
             Log.w(TAG, "[VoiceConnection] openPhoneAccounts ignored due to no ConnectionService");
@@ -657,11 +717,17 @@ public class CapCallKeepPlugin extends Plugin {
         }
 
         openPhoneAccountSettings();
+        call.resolve();
     }
 
     @PluginMethod
-    public void openPhoneAccountSettings() {
+    public void openPhoneAccountSettings(PluginCall call) {
         Log.d(TAG, "[VoiceConnection] openPhoneAccountSettings");
+        openPhoneAccountSettings();
+        call.resolve();
+    }
+
+    public void openPhoneAccountSettings() {
         if (!isConnectionServiceAvailable()) {
             Log.w(TAG, "[VoiceConnection] openPhoneAccountSettings ignored due to no ConnectionService");
             return;
@@ -688,7 +754,7 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void backToForeground() {
+    public void backToForeground(PluginCall call) {
         Context context = getAppContext();
         String packageName = context.getApplicationContext().getPackageName();
         Intent focusIntent = context.getPackageManager().getLaunchIntentForPackage(packageName).cloneFilter();
@@ -709,6 +775,7 @@ public class CapCallKeepPlugin extends Plugin {
 
             getContext().startActivity(focusIntent);
         }
+        call.resolve();
     }
 
     private void initializeTelecomManager(Context context) {
@@ -909,5 +976,17 @@ public class CapCallKeepPlugin extends Plugin {
             return (CapCallKeepPlugin) handle.getInstance();
         }
         return null;
+    }
+
+    private boolean validate(PluginCall call, String[] keys) {
+        for (String key : keys) {
+            if (!call.hasOption(key)) {
+                String message = String.format("Missing required key '%s'", key);
+                Log.w(TAG, "rejecting with message " + message);
+                call.reject(message);
+                return false;
+            }
+        }
+        return true;
     }
 }
