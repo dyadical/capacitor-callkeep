@@ -1,5 +1,7 @@
 # capacitor-callkeep
 
+We went through hell to make this work for YOU.
+
 Capacitor port of react-native callkeep. iOS CallKit framework and Android ConnectionService for Capacitor. VoIP, FCM tokens, APNS tokens.
 
 We're aiming to publish to npm by roughly September 23, 2021.
