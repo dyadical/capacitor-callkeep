@@ -1,32 +1,11 @@
 package com.dyadical.capcallkeep;
 
-import static com.dyadical.capcallkeep.Constants.ACTION_ANSWER_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_AUDIO_SESSION;
-import static com.dyadical.capcallkeep.Constants.ACTION_CHECK_REACHABILITY;
-import static com.dyadical.capcallkeep.Constants.ACTION_DTMF_TONE;
-import static com.dyadical.capcallkeep.Constants.ACTION_END_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_HOLD_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_MUTE_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_ONGOING_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_ON_SILENCE_INCOMING_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_SHOW_INCOMING_CALL_UI;
-import static com.dyadical.capcallkeep.Constants.ACTION_UNHOLD_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_UNMUTE_CALL;
-import static com.dyadical.capcallkeep.Constants.ACTION_WAKE_APP;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALLER_NAME;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_NUMBER;
-import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_UUID;
-
 import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Icon;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -40,9 +19,10 @@ import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.WindowManager;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.getcapacitor.Bridge;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -54,9 +34,13 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+
+import static com.dyadical.capcallkeep.Constants.EXTRA_CALLER_NAME;
+import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_NUMBER;
+import static com.dyadical.capcallkeep.Constants.EXTRA_CALL_UUID;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 @CapacitorPlugin(
@@ -73,25 +57,17 @@ public class CapCallKeepPlugin extends Plugin {
 
     private String[] permissions = new String[] { "readPhoneNumbers", "readPhoneState", "manageOwnCalls", "callPhone", "recordAudio" };
 
-    public static final int REQUEST_READ_PHONE_STATE = 1337;
-    public static final int REQUEST_REGISTER_CALL_PROVIDER = 394859;
 
-    private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
-    private static final String REACT_NATIVE_MODULE_NAME = "CapCallKeep";
+    private static final String TAG = "CapCallKeepPlugin";
 
-    private static final String TAG = "CapCallKeep";
-    private static TelecomManager telecomManager;
-    private static TelephonyManager telephonyManager;
-    public static PhoneAccountHandle handle;
-    private boolean isReceiverRegistered = false;
-
-    private VoiceBroadcastReceiver voiceBroadcastReceiver;
-    private JSObject _settings;
     public static Bridge staticBridge = null;
+    private CapCallKeep implementation;
 
     public void load() {
         Log.d(TAG, "load()");
         staticBridge = this.bridge;
+//        implementation = new CapCallKeep(getContext());
+        implementation = new CapCallKeep();
         // messagingService = new MessagingService();
     }
 
@@ -102,13 +78,6 @@ public class CapCallKeepPlugin extends Plugin {
     // this.reactContext = reactContext;
     // }
 
-    private boolean isSelfManaged() {
-        try {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && _settings.has("selfManaged") && _settings.getBoolean("selfManaged");
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     // @Override
     // public String getName() {
@@ -119,77 +88,27 @@ public class CapCallKeepPlugin extends Plugin {
     public void setupAndroid(PluginCall call) {
         Log.d(TAG, "[VoiceConnection] setup");
         JSObject data = call.getData();
-        setupAndroid(data, getContext().getApplicationContext());
+        implementation.setupAndroid(data, getContext().getApplicationContext());
         call.resolve();
-    }
-
-    public void setupAndroid(JSObject data, Context context) {
-        VoiceConnectionService.setAvailable(false);
-        VoiceConnectionService.setInitialized(true);
-        this._settings = data;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (isSelfManaged()) {
-                Log.d(TAG, "[VoiceConnection] API Version supports self managed, and is enabled in setup");
-            } else {
-                Log.d(TAG, "[VoiceConnection] API Version supports self managed, but it is not enabled in setup");
-            }
-        }
-
-        // If we're running in self managed mode we need fewer permissions.
-        // TODO
-        // if (isSelfManaged()) {
-        // Log.d(TAG, "[VoiceConnection] setup, adding RECORD_AUDIO in permissions in
-        // self managed");
-        // permissions = new String[] { Manifest.permission.RECORD_AUDIO };
-        // }
-
-        if (isConnectionServiceAvailable()) {
-            Log.i(TAG, "registering phone account");
-            this.registerPhoneAccount(context);
-            this.registerEvents(context);
-            VoiceConnectionService.setAvailable(true);
-            Log.d(TAG, "isEnabled:" + telecomManager.getPhoneAccount(handle).isEnabled());
-        } else {
-            Log.w(TAG, "connection service not available");
-        }
-
-        VoiceConnectionService.setSettings(this._settings);
     }
 
     @PluginMethod
     public void registerPhoneAccount(PluginCall call) {
-        if (!isConnectionServiceAvailable()) {
+        if (!implementation.isConnectionServiceAvailable()) {
             Log.w(TAG, "[VoiceConnection] registerPhoneAccount ignored due to no ConnectionService");
             return;
         }
 
         Log.d(TAG, "[VoiceConnection] registerPhoneAccount");
 
-        registerPhoneAccount(getAppContext());
+        implementation.registerPhoneAccount(getAppContext());
         call.resolve();
     }
 
     @PluginMethod
     public void registerEvents(PluginCall call) {
-        registerEvents(getContext());
+        implementation.registerEvents(getContext());
         call.resolve();
-    }
-
-    public void registerEvents(Context context) {
-        // TODO: test this function.
-        //  registerEvents may expect/need the getContext() instead of getContext().getApplicationContext() which it currently sometimes receives.
-        //  see commit https://github.com/dyadical/capacitor-callkeep/pull/4/commits/4e8f4acb43698decd5442d607fd36a5d4761272b
-        if (!isConnectionServiceAvailable()) {
-            Log.w(TAG, "[VoiceConnection] registerEvents ignored due to no ConnectionService");
-            return;
-        }
-
-        Log.d(TAG, "[VoiceConnection] registerEvents");
-
-        voiceBroadcastReceiver = new VoiceBroadcastReceiver();
-        registerReceiver(context);
-        VoiceConnectionService.setPhoneAccountHandle(handle);
     }
 
     @PluginMethod
@@ -202,7 +121,7 @@ public class CapCallKeepPlugin extends Plugin {
         String number = call.getString("number");
         String callerName = call.getString("callerName");
 
-        Boolean succeeded = displayIncomingCall(uuid, number, callerName);
+        Boolean succeeded = implementation.displayIncomingCall(uuid, number, callerName);
         if (!succeeded) {
             call.reject("no ConnectionService or no phone account");
             return;
@@ -210,30 +129,14 @@ public class CapCallKeepPlugin extends Plugin {
         call.resolve();
     }
 
-    public Boolean displayIncomingCall(String uuid, String number, String callerName) {
-        Log.i(TAG, "displayIncomingCall()");
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
-            Log.w(TAG, "doDisplayIncomingCall ignored due to no ConnectionService or no phone account");
-            Boolean succeeded = false;
-            return succeeded;
-        }
-        Bundle extras = new Bundle();
-        Uri uri = Uri.fromParts(PhoneAccount.SCHEME_TEL, number, null);
-
-        extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS, uri);
-        extras.putString(EXTRA_CALLER_NAME, callerName);
-        extras.putString(EXTRA_CALL_UUID, uuid);
-
-        telecomManager.addNewIncomingCall(handle, extras);
-        Boolean succeeded = true;
-        return succeeded;
-    }
-
     @PluginMethod
     public void answerIncomingCall(PluginCall call) {
+        if (!validate(call, new String[] { "uuid" })) {
+            return;
+        }
         String uuid = call.getString("uuid");
         Log.d(TAG, "[VoiceConnection] answerIncomingCall, uuid: " + uuid);
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
+        if (!implementation.isConnectionServiceAvailable() || !implementation.hasPhoneAccount()) {
             Log.w(TAG, "[VoiceConnection] answerIncomingCall ignored due to no ConnectionService or no phone account");
             return;
         }
@@ -258,13 +161,13 @@ public class CapCallKeepPlugin extends Plugin {
         String callerName = call.getString("callerName");
         Log.d(TAG, "[VoiceConnection] startCall called, uuid: " + uuid + ", number: " + number + ", callerName: " + callerName);
 
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount() || !hasPermissions() || number == null) {
+        if (!implementation.isConnectionServiceAvailable() || !implementation.hasPhoneAccount() || !hasPermissions() || number == null) {
             Log.w(
                 TAG,
                 "[VoiceConnection] startCall ignored: " +
-                isConnectionServiceAvailable() +
+                implementation.isConnectionServiceAvailable() +
                 ", " +
-                hasPhoneAccount() +
+                implementation.hasPhoneAccount() +
                 ", " +
                 hasPermissions() +
                 ", " +
@@ -283,7 +186,7 @@ public class CapCallKeepPlugin extends Plugin {
         callExtras.putString(EXTRA_CALL_UUID, uuid);
         callExtras.putString(EXTRA_CALL_NUMBER, number);
 
-        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, handle);
+        extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, implementation.handle);
         extras.putParcelable(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, callExtras);
 
         Log.d(TAG, "[VoiceConnection] startCall, uuid: " + uuid);
@@ -291,7 +194,7 @@ public class CapCallKeepPlugin extends Plugin {
             call.reject("no CALL_PHONE permissions");
             return;
         }
-        telecomManager.placeCall(uri, extras);
+        implementation.telecomManager.placeCall(uri, extras);
         call.resolve();
     }
 
@@ -302,7 +205,7 @@ public class CapCallKeepPlugin extends Plugin {
         }
         String uuid = call.getString("uuid");
         Log.d(TAG, "[VoiceConnection] endCall called, uuid: " + uuid);
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
+        if (!implementation.isConnectionServiceAvailable() || !implementation.hasPhoneAccount()) {
             Log.w(TAG, "[VoiceConnection] endCall ignored due to no ConnectionService or no phone account");
             return;
         }
@@ -321,7 +224,7 @@ public class CapCallKeepPlugin extends Plugin {
     @PluginMethod
     public void endAllCalls(PluginCall call) {
         Log.d(TAG, "[VoiceConnection] endAllCalls called");
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
+        if (!implementation.isConnectionServiceAvailable() || !implementation.hasPhoneAccount()) {
             Log.w(TAG, "[VoiceConnection] endAllCalls ignored due to no ConnectionService or no phone account");
             return;
         }
@@ -340,7 +243,7 @@ public class CapCallKeepPlugin extends Plugin {
     public void checkPhoneAccountPermission(PluginCall call) {
         // ReadableArray optionalPermissions, Promise promise
 
-        if (!isConnectionServiceAvailable()) {
+        if (!implementation.isConnectionServiceAvailable()) {
             call.reject("ConnectionService not available for this version of Android.");
             return;
         }
@@ -360,7 +263,7 @@ public class CapCallKeepPlugin extends Plugin {
     @PluginMethod
     public void checkDefaultPhoneAccount(PluginCall call) {
         JSObject ret = new JSObject();
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
+        if (!implementation.isConnectionServiceAvailable() || !implementation.hasPhoneAccount()) {
             ret.put("value", true);
             call.resolve(ret);
             return;
@@ -372,12 +275,12 @@ public class CapCallKeepPlugin extends Plugin {
             return;
         }
 
-        boolean hasSim = telephonyManager.getSimState() != TelephonyManager.SIM_STATE_ABSENT;
+        boolean hasSim = implementation.telephonyManager.getSimState() != TelephonyManager.SIM_STATE_ABSENT;
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             call.reject("no READ_PHONE_STATE permission");
             return;
         }
-        boolean hasDefaultAccount = telecomManager.getDefaultOutgoingPhoneAccount("tel") != null;
+        boolean hasDefaultAccount = implementation.telecomManager.getDefaultOutgoingPhoneAccount("tel") != null;
 
         ret.put("value", !hasSim || hasDefaultAccount);
         call.resolve(ret);
@@ -414,7 +317,7 @@ public class CapCallKeepPlugin extends Plugin {
         String uuid = call.getString("uuid");
         int reason = call.getInt("reason");
         Log.d(TAG, "[VoiceConnection] reportEndCallWithUUID, uuid: " + uuid + ", reason: " + reason);
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
+        if (!implementation.isConnectionServiceAvailable() || !implementation.hasPhoneAccount()) {
             return;
         }
 
@@ -434,7 +337,7 @@ public class CapCallKeepPlugin extends Plugin {
         }
         String uuid = call.getString("uuid");
         Log.d(TAG, "[VoiceConnection] rejectCall, uuid: " + uuid);
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
+        if (!implementation.isConnectionServiceAvailable() || !implementation.hasPhoneAccount()) {
             Log.w(TAG, "[VoiceConnection] endAllCalls ignored due to no ConnectionService or no phone account");
             return;
         }
@@ -623,11 +526,12 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void hasPhoneAccount(PluginCall call) {
-        if (telecomManager == null) {
+        if (implementation.telecomManager == null) {
             this.initializeTelecomManager(getAppContext());
         }
 
-        resolveWith(call, hasPhoneAccount());
+        resolveWith(call, implementation.hasPhoneAccount());
+        notifyListeners("TODO", new JSObject());
     }
 
     @PluginMethod
@@ -637,7 +541,7 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void hasPermissions(PluginCall call) {
-        resolveWith(call, this.hasPermissions());
+        resolveWith(call, hasPermissions());
     }
 
     private void resolveWith(PluginCall call, Object value) {
@@ -700,7 +604,7 @@ public class CapCallKeepPlugin extends Plugin {
     @PluginMethod
     public void openPhoneAccounts(PluginCall call) {
         Log.d(TAG, "[VoiceConnection] openPhoneAccounts");
-        if (!isConnectionServiceAvailable()) {
+        if (!implementation.isConnectionServiceAvailable()) {
             Log.w(TAG, "[VoiceConnection] openPhoneAccounts ignored due to no ConnectionService");
             return;
         }
@@ -727,30 +631,14 @@ public class CapCallKeepPlugin extends Plugin {
         call.resolve();
     }
 
-    public void openPhoneAccountSettings() {
-        if (!isConnectionServiceAvailable()) {
-            Log.w(TAG, "[VoiceConnection] openPhoneAccountSettings ignored due to no ConnectionService");
-            return;
-        }
-
-        Intent intent = new Intent(TelecomManager.ACTION_CHANGE_PHONE_ACCOUNTS);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        this.getAppContext().startActivity(intent);
-    }
-
-    public static Boolean isConnectionServiceAvailable() {
-        // PhoneAccount is available since api level 23
-        return Build.VERSION.SDK_INT >= 23;
-    }
-
     @PluginMethod
     public void isConnectionServiceAvailable(PluginCall call) {
-        resolveWith(call, isConnectionServiceAvailable());
+        resolveWith(call, implementation.isConnectionServiceAvailable());
     }
 
     @PluginMethod
     public void checkPhoneAccountEnabled(PluginCall call) {
-        resolveWith(call, hasPhoneAccount());
+        resolveWith(call, implementation.hasPhoneAccount());
     }
 
     @PluginMethod
@@ -778,194 +666,11 @@ public class CapCallKeepPlugin extends Plugin {
         call.resolve();
     }
 
-    private void initializeTelecomManager(Context context) {
-        ComponentName cName = new ComponentName(context, VoiceConnectionService.class);
-        String appName = this.getApplicationName(context);
-
-        handle = new PhoneAccountHandle(cName, appName);
-        telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
-    }
-
-    public void registerPhoneAccount(Context appContext) {
-        if (!isConnectionServiceAvailable()) {
-            Log.w(TAG, "doRegisterPhoneAccount ignored due to no ConnectionService");
-            return;
-        }
-
-        this.initializeTelecomManager(appContext);
-        String appName = this.getApplicationName(appContext);
-
-        PhoneAccount.Builder builder = new PhoneAccount.Builder(handle, appName);
-        if (isSelfManaged()) {
-            builder.setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED);
-        } else {
-            builder.setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER);
-        }
-
-        if (_settings != null && _settings.has("imageName")) {
-            int identifier = appContext
-                .getResources()
-                .getIdentifier(_settings.getString("imageName"), "drawable", appContext.getPackageName());
-            Icon icon = Icon.createWithResource(appContext, identifier);
-            builder.setIcon(icon);
-        }
-
-        PhoneAccount account = builder.build();
-
-        telephonyManager = (TelephonyManager) appContext.getSystemService(Context.TELEPHONY_SERVICE);
-
-        telecomManager.registerPhoneAccount(account);
-    }
-
-    private String getApplicationName(Context appContext) {
-        ApplicationInfo applicationInfo = appContext.getApplicationInfo();
-        int stringId = applicationInfo.labelRes;
-
-        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : appContext.getString(stringId);
-    }
-
-    private Boolean hasPermissions() {
-        Activity currentActivity = getActivity();
-
-        if (currentActivity == null) {
-            return false;
-        }
-
-        for (String permission : permissions) {
-            if (getPermissionState(permission) != PermissionState.GRANTED) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static boolean hasPhoneAccount() {
-        return (
-            isConnectionServiceAvailable() &&
-            telecomManager != null &&
-            telecomManager.getPhoneAccount(handle) != null &&
-            telecomManager.getPhoneAccount(handle).isEnabled()
-        );
-    }
-
-    private void registerReceiver(Context context) {
-        if (!isReceiverRegistered) {
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(ACTION_END_CALL);
-            intentFilter.addAction(ACTION_ANSWER_CALL);
-            intentFilter.addAction(ACTION_MUTE_CALL);
-            intentFilter.addAction(ACTION_UNMUTE_CALL);
-            intentFilter.addAction(ACTION_DTMF_TONE);
-            intentFilter.addAction(ACTION_UNHOLD_CALL);
-            intentFilter.addAction(ACTION_HOLD_CALL);
-            intentFilter.addAction(ACTION_ONGOING_CALL);
-            intentFilter.addAction(ACTION_AUDIO_SESSION);
-            intentFilter.addAction(ACTION_CHECK_REACHABILITY);
-            intentFilter.addAction(ACTION_SHOW_INCOMING_CALL_UI);
-            intentFilter.addAction(ACTION_ON_SILENCE_INCOMING_CALL);
-
-            LocalBroadcastManager.getInstance(context).registerReceiver(voiceBroadcastReceiver, intentFilter);
-            isReceiverRegistered = true;
-        }
-    }
 
     private Context getAppContext() {
         return getContext().getApplicationContext();
     }
 
-    private class VoiceBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            JSObject args = new JSObject();
-            HashMap<String, String> attributeMap = (HashMap<String, String>) intent.getSerializableExtra("attributeMap");
-
-            switch (intent.getAction()) {
-                case ACTION_END_CALL:
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("endCall", args);
-                    break;
-                case ACTION_ANSWER_CALL:
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("answerCall", args);
-                    break;
-                case ACTION_HOLD_CALL:
-                    args.put("hold", true);
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("toggleHold", args);
-                    break;
-                case ACTION_UNHOLD_CALL:
-                    args.put("hold", false);
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("toggleHold", args);
-                    break;
-                case ACTION_MUTE_CALL:
-                    args.put("muted", true);
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("setMutedCall", args);
-                    break;
-                case ACTION_UNMUTE_CALL:
-                    args.put("muted", false);
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("setMutedCall", args);
-                    break;
-                case ACTION_DTMF_TONE:
-                    args.put("digits", attributeMap.get("DTMF"));
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    notifyListeners("DTMFAction", args);
-                    break;
-                case ACTION_ONGOING_CALL:
-                    args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    notifyListeners("startCall", args);
-                    break;
-                case ACTION_AUDIO_SESSION:
-                    notifyListeners("activateAudioSession", null);
-                    break;
-                case ACTION_CHECK_REACHABILITY:
-                    notifyListeners("checkReachability", null);
-                    break;
-                case ACTION_SHOW_INCOMING_CALL_UI:
-                    args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    notifyListeners("showIncomingCallUi", args);
-                    break;
-                case ACTION_WAKE_APP:
-                    Log.w(TAG, "ACTION_WAKE_UP NOT IMPLEMENTED");
-                    // TODO
-                    // Intent headlessIntent = new Intent(getContext(),
-                    // CallKeepBackgroundMessagingService.class);
-                    // headlessIntent.putExtra("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    // headlessIntent.putExtra("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    // headlessIntent.putExtra("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    // Log.d(
-                    // TAG,
-                    // "[VoiceConnection] wakeUpApplication: " +
-                    // attributeMap.get(EXTRA_CALL_UUID) +
-                    // ", number : " +
-                    // attributeMap.get(EXTRA_CALL_NUMBER) +
-                    // ", displayName:" +
-                    // attributeMap.get(EXTRA_CALLER_NAME)
-                    // );
-                    //
-                    // ComponentName name = getContext().startService(headlessIntent);
-                    // if (name != null) {
-                    // // TODO:
-                    // // HeadlessJsTaskService.acquireWakeLockNow(getContext());
-                    // }
-                    break;
-                case ACTION_ON_SILENCE_INCOMING_CALL:
-                    args.put("handle", attributeMap.get(EXTRA_CALL_NUMBER));
-                    args.put("callUUID", attributeMap.get(EXTRA_CALL_UUID));
-                    args.put("name", attributeMap.get(EXTRA_CALLER_NAME));
-                    notifyListeners("silenceIncomingCall", args);
-                    break;
-            }
-        }
-    }
 
     public static CapCallKeepPlugin getCapCallKeepInstance() {
         if (staticBridge != null && staticBridge.getWebView() != null) {
@@ -989,4 +694,33 @@ public class CapCallKeepPlugin extends Plugin {
         }
         return true;
     }
+
+    public void openPhoneAccountSettings() {
+        if (!implementation.isConnectionServiceAvailable()) {
+            Log.w(TAG, "[VoiceConnection] openPhoneAccountSettings ignored due to no ConnectionService");
+            return;
+        }
+
+        Intent intent = new Intent(TelecomManager.ACTION_CHANGE_PHONE_ACCOUNTS);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        this.getAppContext().startActivity(intent);
+    }
+
+    public Boolean hasPermissions() {
+        Activity currentActivity = getActivity();
+
+        if (currentActivity == null) {
+            return false;
+        }
+
+        for (String permission : permissions) {
+            if (getPermissionState(permission) != PermissionState.GRANTED) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
 }
