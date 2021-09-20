@@ -28,7 +28,6 @@ npx cap sync
 * [`addListener(...)`](#addlistener)
 * [`addListener(...)`](#addlistener)
 * [`addListener(...)`](#addlistener)
-* [`echo(...)`](#echo)
 * [`setupAndroid(...)`](#setupandroid)
 * [`supportConnectionService()`](#supportconnectionservice)
 * [`registerPhoneAccount()`](#registerphoneaccount)
@@ -247,21 +246,6 @@ iOS only
 | ---------- | ----------------------------------------------- |
 | **`type`** | <code>"registration"</code>                     |
 | **`l`**    | <code>(t: { token: string; }) =&gt; void</code> |
-
-**Returns:** <code>any</code>
-
---------------------
-
-
-### echo(...)
-
-```typescript
-echo(options: { value: string; }) => any
-```
-
-| Param         | Type                            |
-| ------------- | ------------------------------- |
-| **`options`** | <code>{ value: string; }</code> |
 
 **Returns:** <code>any</code>
 

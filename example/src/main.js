@@ -25,7 +25,6 @@ start();
 
 window.callStuff = async function callStuff() {
   await attempt(() => CapCallKeep.checkPermissions(), 'checkPermissions');
-  await attempt(() => CapCallKeep.echo({ value: 'bob' }), 'echo');
   await attempt(
     () =>
       CapCallKeep.displayIncomingCall({

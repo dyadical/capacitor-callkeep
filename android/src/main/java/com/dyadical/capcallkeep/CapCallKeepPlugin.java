@@ -90,15 +90,6 @@ public class CapCallKeepPlugin extends Plugin {
     private JSObject _settings;
     public static Bridge staticBridge = null;
 
-    @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
-
-        JSObject ret = new JSObject();
-        ret.put("value", "real cool ".concat(value));
-        call.resolve(ret);
-    }
-
     public void load() {
         Log.i(TAG, "load()");
         staticBridge = this.bridge;
