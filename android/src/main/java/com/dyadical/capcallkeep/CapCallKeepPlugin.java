@@ -581,7 +581,7 @@ public class CapCallKeepPlugin extends Plugin {
     @PluginMethod
     public void hasPhoneAccount(PluginCall call) {
         if (telecomManager == null) {
-            this.initializeTelecomManager(getContext());
+            this.initializeTelecomManager(getAppContext());
         }
 
         resolveWith(call, hasPhoneAccount());
