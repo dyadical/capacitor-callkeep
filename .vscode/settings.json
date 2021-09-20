@@ -1,0 +1,18 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#293101",
+        "titleBar.activeBackground": "#394501",
+        "titleBar.activeForeground": "#F7FED2",
+        "statusBar.background": "#394501",
+        "statusBar.foreground": "#F7FED2"
+    },
+    "editor.formatOnSave": false,
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "example/src/.*\\.js$|example/www/index.html$",
+                "cmd": "cd example && npm run build",
+            },
+        ]
+    },    
+}
