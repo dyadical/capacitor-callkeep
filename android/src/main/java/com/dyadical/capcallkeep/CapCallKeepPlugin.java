@@ -120,11 +120,11 @@ public class CapCallKeepPlugin extends Plugin {
     public void setupAndroid(PluginCall call) {
         Log.i(TAG, "[VoiceConnection] setup");
         JSObject data = call.getData();
-        doSetupAndroid(data, getContext().getApplicationContext());
+        setupAndroid(data, getContext().getApplicationContext());
         call.resolve();
     }
 
-    public void doSetupAndroid(JSObject data, Context context) {
+    public void setupAndroid(JSObject data, Context context) {
         VoiceConnectionService.setAvailable(false);
         VoiceConnectionService.setInitialized(true);
         this._settings = data;
@@ -147,8 +147,8 @@ public class CapCallKeepPlugin extends Plugin {
 
         if (isConnectionServiceAvailable()) {
             Log.i(TAG, "registering phone account");
-            this.doRegisterPhoneAccount(context);
-            this.doRegisterEvents(context);
+            this.registerPhoneAccounut(context);
+            this.registerEvents(context);
             VoiceConnectionService.setAvailable(true);
             Log.i(TAG, "isEnabled:" + telecomManager.getPhoneAccount(handle).isEnabled());
         } else {
@@ -172,10 +172,10 @@ public class CapCallKeepPlugin extends Plugin {
 
     @PluginMethod
     public void registerEvents() {
-        doRegisterEvents(getContext());
+        registerEvents(getContext());
     }
 
-    public void doRegisterEvents(Context context) {
+    public void registerEvents(Context context) {
         if (!isConnectionServiceAvailable()) {
             Log.w(TAG, "[VoiceConnection] registerEvents ignored due to no ConnectionService");
             return;
@@ -207,16 +207,15 @@ public class CapCallKeepPlugin extends Plugin {
         }
         String callerName = call.getString("callerName");
 
-        Boolean succeeded = doDisplayIncomingCall(uuid, number, callerName);
+        Boolean succeeded = displayIncomingCall(uuid, number, callerName);
         if (!succeeded) {
             call.reject("no ConnectionService or no phone account");
             return;
         }
-        doDisplayIncomingCall(uuid, number, callerName);
         call.resolve();
     }
 
-    public Boolean doDisplayIncomingCall(String uuid, String number, String callerName) {
+    public Boolean displayIncomingCall(String uuid, String number, String callerName) {
         Log.i(TAG, "displayIncomingCall()");
         if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
             Log.w(TAG, "doDisplayIncomingCall ignored due to no ConnectionService or no phone account");
@@ -717,7 +716,7 @@ public class CapCallKeepPlugin extends Plugin {
         telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
     }
 
-    public void doRegisterPhoneAccount(Context appContext) {
+    public void registerPhoneAccounut(Context appContext) {
         if (!isConnectionServiceAvailable()) {
             Log.w(TAG, "doRegisterPhoneAccount ignored due to no ConnectionService");
             return;
