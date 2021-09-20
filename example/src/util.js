@@ -16,7 +16,10 @@ export function error(x) {
   console.error(s);
 }
 
-export async function attempt(func, name) {
+export async function attempt(func, name = null) {
+  if (name == null) {
+    name = func.name;
+  }
   try {
     const res = await func();
     const message = `${name}: ${JSON.stringify(res)}`;

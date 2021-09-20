@@ -4,7 +4,6 @@ import android.os.Build;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-
 import com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin;
 import com.dyadical.capcallkeep.CapCallKeepPlugin;
 import com.getcapacitor.JSObject;
