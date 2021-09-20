@@ -159,7 +159,7 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void registerPhoneAccount() {
+    public void registerPhoneAccount(PluginCall call) {
         if (!isConnectionServiceAvailable()) {
             Log.w(TAG, "[VoiceConnection] registerPhoneAccount ignored due to no ConnectionService");
             return;
@@ -167,7 +167,8 @@ public class CapCallKeepPlugin extends Plugin {
 
         Log.d(TAG, "[VoiceConnection] registerPhoneAccount");
 
-        this.registerPhoneAccount();
+        registerPhoneAccount(getAppContext());
+        call.resolve();
     }
 
     @PluginMethod
