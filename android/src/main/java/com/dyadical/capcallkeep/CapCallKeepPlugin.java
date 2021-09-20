@@ -177,6 +177,9 @@ public class CapCallKeepPlugin extends Plugin {
     }
 
     public void registerEvents(Context context) {
+        // TODO: test this function.
+        //  registerEvents may expect/need the getContext() instead of getContext().getApplicationContext() which it currently sometimes receives.
+        //  see commit https://github.com/dyadical/capacitor-callkeep/pull/4/commits/4e8f4acb43698decd5442d607fd36a5d4761272b
         if (!isConnectionServiceAvailable()) {
             Log.w(TAG, "[VoiceConnection] registerEvents ignored due to no ConnectionService");
             return;
