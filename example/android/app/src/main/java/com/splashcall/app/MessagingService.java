@@ -6,8 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin;
 import com.dyadical.capcallkeep.CapCallKeepPlugin;
+import com.getcapacitor.JSObject;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.splashcall.app.MainActivity;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class MessagingService extends FirebaseMessagingService {
@@ -24,12 +26,28 @@ public class MessagingService extends FirebaseMessagingService {
             if (cckp != null) {
                 Log.i(TAG, "gonna try to display it");
                 cckp.doDisplayIncomingCall("aaaa", "12345", "Wes");
+                //                PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
             } else {
                 Log.e(TAG, "no CapCallKeepPlugin instance found");
+                cckp = new CapCallKeepPlugin();
+                JSObject androidData = new JSObject();
+                androidData.put("selfManaged", false);
+                androidData.put("imageName", "imageNameIdk");
+                JSObject foregroundService = new JSObject();
+                foregroundService.put("channelId", "hmm");
+                foregroundService.put("channelName", "whatisthis");
+                foregroundService.put("notificationTitle", "titlehereidk");
+                androidData.put("foregroundService", foregroundService);
+                Log.i(TAG, "about to call cckp.setupAndroid");
+                //                PluginCall pc = new PluginCall();
+                //                cckp.setupAndroid(); // TODO: is it just this simple?
+
+                cckp.doSetupAndroid(androidData, getApplicationContext());
+                cckp.doDisplayIncomingCall("aaaa", "12345", "Wes");
             }
         } else {
             Log.i(TAG, "forwarding notification to @capacitor/push-notifications");
-            PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
+            //            PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
         }
     }
 }
