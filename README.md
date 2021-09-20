@@ -1,6 +1,6 @@
 # capacitor-callkeep
 
-We went through hell to make this work for YOU.
+There is a working example app in the /example folder with its own [README](example/README.md) file. That is a great place to start if you consider using this plugin.
 
 Capacitor port of react-native callkeep. iOS CallKit framework and Android ConnectionService for Capacitor. VoIP, FCM tokens, APNS tokens.
 
