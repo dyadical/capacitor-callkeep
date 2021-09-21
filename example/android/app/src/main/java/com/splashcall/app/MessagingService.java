@@ -23,8 +23,10 @@ public class MessagingService extends FirebaseMessagingService {
         if (type != null && type.equals("ring")) {
             CapCallKeepPlugin cckp = CapCallKeepPlugin.getCapCallKeepInstance();
             if (cckp != null) {
-                Log.d(TAG, "gonna try to display it");
-                cckp.displayIncomingCall("aaaa", "12345", "Wes");
+                cckp.displayIncomingCall(
+                        data.get("uuid"),
+                        data.get("number"),
+                        data.get("callerName"));
                 //                PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
             } else {
                 Log.e(TAG, "no CapCallKeepPlugin instance found");
@@ -42,7 +44,10 @@ public class MessagingService extends FirebaseMessagingService {
                 //                cckp.setupAndroid(); // TODO: is it just this simple?
 
                 cckp.setupAndroid(androidData, getApplicationContext());
-                cckp.displayIncomingCall("aaaa", "12345", "Wes");
+                cckp.displayIncomingCall(
+                        data.get("uuid"),
+                        data.get("number"),
+                        data.get("callerName"));
             }
         } else {
             Log.d(TAG, "forwarding notification to @capacitor/push-notifications");
