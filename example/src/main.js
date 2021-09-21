@@ -50,7 +50,7 @@ function addCapCallKeepListeners() {
     cck.addListener(event, data => log(data, `Event ${event} received `));
   }
   cck.addListener('endCall', ({ callUUID }) => {
-    console.log('updating uuids because endCall');
+    log('updating uuids because endCall');
     const i = uuids.indexOf(callUUID);
     if (i >= 0) {
       uuids.splice(i, 1);
@@ -58,17 +58,17 @@ function addCapCallKeepListeners() {
     updateIdsDiv();
   });
   cck.addListener('answerCall', ({ callUUID }) => {
-    console.log('updating uuids because answerCall');
+    log('updating uuids because answerCall');
     uuids.push(callUUID);
     updateIdsDiv();
   });
   cck.addListener('startCall', ({ callUUID }) => {
-    console.log('updating uuids because startCall');
+    log('updating uuids because startCall');
     uuids.push(callUUID);
     updateIdsDiv();
   });
   cck.addListener('showIncomingCallUi', ({ callUUID, handle, name }) => {
-    console.log('updating uuids because showIncomingCallUi');
+    log('updating uuids because showIncomingCallUi');
     uuids.push(callUUID);
     updateIdsDiv();
   });

@@ -49,6 +49,7 @@ export interface CapCallKeepPlugin {
   addListener(type: 'startCall', l: L<CallInfo>): PLH;
   addListener(type: 'activateAudioSession', l: L<void>): PLH;
   addListener(type: 'checkReachability', l: L<void>): PLH;
+  /** NOTE: Only triggered if self managed */
   addListener(type: 'showIncomingCallUi', l: L<CallInfo>): PLH;
   addListener(type: 'silenceIncomingCall', l: L<CallInfo>): PLH;
   /** iOS only */

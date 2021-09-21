@@ -226,6 +226,18 @@ public class CapCallKeepPlugin extends Plugin {
 
         telecomManager.addNewIncomingCall(handle, extras);
         Boolean succeeded = true;
+
+        // TODO: for some reason, ACTION_SHOW_INCOMING_CALL_UI is not getting triggered
+        // NOTE: ACTION_SHOW_INCOMING_CALL_UI is not triggered if application is not self managed
+        // see https://stackoverflow.com/a/54244447/4941530
+        JSObject args = new JSObject();
+        args.put("handle", number);
+        args.put("callUUID", uuid);
+        args.put("name", callerName);
+        args.put("origin", "method");
+
+        notifyListeners("showIncomingCallUi", args);
+
         return succeeded;
     }
 
